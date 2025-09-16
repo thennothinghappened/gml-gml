@@ -15,6 +15,8 @@ function AstStatement(type) constructor
 	self.type = type;
 }
 
+#macro breakable repeat (1)
+
 /// @param {Array<Struct.AstStatement>} statements
 function AstBlock(statements) : AstStatement(AstStatementType.Block) constructor
 {
@@ -22,7 +24,46 @@ function AstBlock(statements) : AstStatement(AstStatementType.Block) constructor
 	
 	static toString = function()
 	{
-		return "{\n" + indent(string_join_ext("\n", self.statements)) + "\n}";
+		return "{" + indent(array_reduce(self.statements, function(prev, current)
+		{
+			static isAssignment = function(statement)
+			{
+				return (statement.type == AstStatementType.Assign)
+					|| (statement.type == AstStatementType.LocalVarDeclaration);
+			};
+
+			var outString = prev.outString + "\n";
+
+			breakable
+			{
+				if (!struct_exists(prev, "ast"))
+				{
+					break;
+				}
+				
+				if (string_count("\n", string(current)) == 0)
+				{
+					if (prev.ast.type == current.type)
+					{
+						break;
+					}
+					
+					if (isAssignment(prev.ast) == isAssignment(current))
+					{
+						break;
+					}
+				}
+				
+				outString += "\n";
+			}
+
+			outString += string(current);
+
+			return {
+				ast: current,
+				outString
+			};
+		}, { outString: "" }).outString) + "\n}";
 	}
 }
 

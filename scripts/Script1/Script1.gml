@@ -2,6 +2,10 @@
 var input = @'
 	var struct = {
 		stuff: "whoa",
+		idkLol: function()
+		{
+			return 3;
+		}
 	};
 	
 	struct.blah = function() {
