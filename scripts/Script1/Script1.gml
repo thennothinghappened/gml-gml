@@ -1,6 +1,8 @@
 
 var input = @'
-	var struct = struct_new();
+	var struct = {
+		stuff: "whoa",
+	};
 	
 	struct.blah = function() {
 		var innerStruct = struct_new();

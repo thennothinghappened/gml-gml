@@ -14,6 +14,7 @@ enum TokenType
 	Minus,
 	Not,
 	Semicolon,
+	Colon,
 	Comma,
 	Period,
 	Unknown
@@ -41,6 +42,7 @@ function tokenNameOf(tokenType)
 		tokenNames[TokenType.Minus] = "Minus";
 		tokenNames[TokenType.Not] = "Not";
 		tokenNames[TokenType.Semicolon] = "Semicolon";
+		tokenNames[TokenType.Colon] = "Colon";
 		tokenNames[TokenType.Comma] = "Comma";
 		tokenNames[TokenType.Period] = "Period";
 		tokenNames[TokenType.Unknown] = "Unknown";
@@ -148,6 +150,10 @@ function Lexer(text) constructor
 			case ";":
 				self.__nextChar();
 				return new Token(TokenType.Semicolon);
+			
+			case ":":
+				self.__nextChar();
+				return new Token(TokenType.Colon);
 			
 			case "+":
 				self.__nextChar();

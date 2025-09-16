@@ -567,6 +567,40 @@ function Parser(lexer) constructor
 				self.lexer.next();
 				return new AstExpressionReference(identName);
 			
+			case TokenType.OpenBlock:
+				// Struct literal!
+				//
+				// Rather than adding *more* AST concepts for this, we're gonna "cheat" by defining the struct literal
+				// using an IIFE.
+				self.lexer.next();
+			
+				static createStruct = new AstExpressionLiteral(function() {
+					return {};
+				});
+			
+				var statements = [
+					new AstLocalVarDeclaration("$$struct", new AstExpressionFunctionCall(createStruct, []))
+				];
+				
+				while (!self.accept(TokenType.CloseBlock))
+				{
+					// TODO: Support shorthand { member } notation.
+					var name = self.consume(TokenType.Identifier);
+					self.consume(TokenType.Colon);
+					
+					var value = self.parseExpression();
+					array_push(statements, new AstAssign(new AstExpressionDotAccess(new AstExpressionReference("$$struct"), name.data), value));
+					
+					if (!self.accept(TokenType.Comma))
+					{
+						self.consume(TokenType.CloseBlock);
+						break;
+					}
+				}
+			
+				array_push(statements, new AstReturn(new AstExpressionReference("$$struct")));
+				return new AstExpressionFunctionCall(new AstExpressionFunction(undefined, [], new AstBlock(statements)), []);
+			
 			default:
 				self.lexer.next();
 				throw $"Unexpected token {token} in expression:\n{self.lexer.formatOffendingArea()}";
