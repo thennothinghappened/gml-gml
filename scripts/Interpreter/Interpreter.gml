@@ -95,7 +95,6 @@ function Interpreter(ast) constructor
 			break;
 
 			case AstExpressionType.DotAccess:
-				show_message(statement);
 				self.evaluateExpression(statement.target.target)[$ statement.target.memberName] = value;
 			break;
 			
