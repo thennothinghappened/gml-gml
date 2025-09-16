@@ -4,6 +4,7 @@ enum AstStatementType
 	Block,
 	FunctionCall,
 	LocalVarDeclaration,
+	If,
 	Assign,
 	DeclareFunction,
 	Return
@@ -88,6 +89,28 @@ function AstLocalVarDeclaration(name, value) : AstStatement(AstStatementType.Loc
 	static toString = function()
 	{
 		return $"var {self.name} = {self.value};";
+	}
+}
+
+/// @param {Struct.AstExpression} value
+/// @param {Struct.AstStatement} block
+/// @param {Struct.AstStatement|undefined} elseBlock
+function AstIf(condition, block, elseBlock) : AstStatement(AstStatementType.If) constructor
+{
+	self.condition = condition;
+	self.block = block;
+	self.elseBlock = elseBlock;
+	
+	static toString = function()
+	{
+		var outString = $"if {self.condition} {self.block}";
+		
+		if (self.elseBlock != undefined)
+		{
+			outString += $" else {self.elseBlock}";
+		}
+		
+		return outString;
 	}
 }
 
@@ -457,6 +480,24 @@ function Parser(lexer) constructor
 					
 					case "function":
 						return new AstFunctionDeclaration(self.parseFunctionDeclaration());
+					
+					case "if":
+						self.lexer.next();
+						
+						var condition = self.parseExpression();
+						var block = self.parseStatement();
+						var elseBlock = undefined;
+					
+						if (self.nextIs(TokenType.Identifier))
+						{
+							if (self.lexer.peek().data == "else")
+							{
+								self.lexer.next();
+								elseBlock = self.parseStatement();
+							}
+						}
+					
+						return new AstIf(condition, block, elseBlock);
 					
 					case "var":
 						self.lexer.next();

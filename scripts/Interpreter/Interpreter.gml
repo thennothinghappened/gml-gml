@@ -40,6 +40,18 @@ function Interpreter(ast) constructor
 				self.declareVariable(statement.name, self.evaluateExpression(statement.value));
 				return undefined;
 			
+			case AstStatementType.If:
+				if (self.evaluateExpression(statement.condition))
+				{
+					return self.executeStatement(statement.block);
+				}
+				else if (statement.elseBlock != undefined)
+				{
+					return self.executeStatement(statement.elseBlock);
+				}
+			
+				return undefined;
+			
 			case AstStatementType.Assign:
 				self.executeAssign(statement);
 				return undefined;

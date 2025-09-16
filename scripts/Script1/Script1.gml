@@ -9,11 +9,23 @@ var input = @'
 	};
 	
 	struct.blah = function() {
-		var innerStruct = struct_new();
-		innerStruct.innerFunc = function() print("hello!");
-		
-		return innerStruct;
+		return {
+			innerFunc: function() {
+				print("hello!");
+			}
+		};
 	};
+
+	print("testing conditional");
+
+	if (1)
+	{
+		print("1 is indeed yes");
+	}
+	else
+	{
+		print("1 is not???");
+	}
 
 	return struct;
 ';
@@ -23,10 +35,7 @@ var parser = new Parser(lexer);
 var ast = parser.parse();
 
 var interpreter = new Interpreter(ast)
-	.define("print", show_message)
-	.define("struct_new", function() { return {}; })
-	.define("struct_get", struct_get)
-	.define("struct_set", struct_set);
+	.define("print", show_message);
 
 var result = interpreter.execute();
 show_message($"Program returned: {result}");
