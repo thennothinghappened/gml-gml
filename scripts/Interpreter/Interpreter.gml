@@ -178,26 +178,32 @@ function Interpreter(ast) constructor
 	static evaluateFunctionDefinition = function(expr)
 	{
 		var _self = self;
-		var closure = { _self: _self, expr };
+		var closure = { _self, expr };
 		
 		var func = method(closure, function()
 		{
-			var oldScope = _self.scope;
-			_self.scope = {};
-			static_set(_self.scope, _self.globalScope);
+			var expr = self.expr;
+			var _self = self._self;
 			
-			for (var i = 0; i < array_length(expr.args); i ++)
+			with (_self)
 			{
-				var arg = expr.args[i];
-				var value = argument[i] ?? arg.defaultValue;
+				var oldScope = self.scope;
+				self.scope = {};
+				static_set(self.scope, self.globalScope);
 				
-				_self.scope[$ arg.name] = value;
+				for (var i = 0; i < array_length(expr.args); i ++)
+				{
+					var arg = expr.args[i];
+					var value = argument[i] ?? self.evaluateExpression(arg.defaultValue);
+					
+					self.scope[$ arg.name] = value;
+				}
+				
+				var result = self.executeStatement(expr.body);
+				self.scope = oldScope;
+				
+				return result;
 			}
-			
-			var result = _self.executeStatement(expr.body);
-			_self.scope = oldScope;
-			
-			return result;
 		});
 		
 		if (expr.name != undefined)
