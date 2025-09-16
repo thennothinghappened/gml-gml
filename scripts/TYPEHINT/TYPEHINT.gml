@@ -1,0 +1,2 @@
+
+#macro TYPEHINT if (false)
