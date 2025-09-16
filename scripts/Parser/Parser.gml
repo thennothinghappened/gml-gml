@@ -659,6 +659,14 @@ function Parser(lexer) constructor
 					case "undefined":
 						self.lexer.next();
 						return new AstExpressionLiteral(undefined);
+					
+					case "true":
+						self.lexer.next();
+						return new AstExpressionLiteral(true);
+					
+					case "false":
+						self.lexer.next();
+						return new AstExpressionLiteral(false);
 				}
 			
 				self.lexer.next();
