@@ -41,7 +41,7 @@ function Interpreter(ast) constructor
 				return undefined;
 			
 			case AstStatementType.Assign:
-				self.setVariable(statement.name, self.evaluateExpression(statement.value));
+				self.executeAssign(statement);
 				return undefined;
 			
 			case AstStatementType.DeclareFunction:
@@ -83,6 +83,26 @@ function Interpreter(ast) constructor
 		return result;
 	}
 	
+	/// @param {Struct.AstAssign} statement
+	static executeAssign = function(statement)
+	{
+		var value = self.evaluateExpression(statement.value);
+		
+		switch (statement.target.type)
+		{
+			case AstExpressionType.Reference:
+				self.setVariable(statement.target.name, value);
+			break;
+
+			case AstExpressionType.DotAccess:
+				self.evaluateExpression(statement.target.target)[$ statement.target.memberName] = value;
+			break;
+			
+			default:
+				throw $"{statement.target} is not a valid assign target ({statement})";
+		}
+	}
+	
 	/// @param {Struct.AstExpression} expression
 	static evaluateExpression = function(expression)
 	{
@@ -105,6 +125,9 @@ function Interpreter(ast) constructor
 			
 			case AstExpressionType.UnaryOp:
 				return self.evaluateUnaryOp(expression);
+			
+			case AstExpressionType.DotAccess:
+				return self.evaluateExpression(expression.target)[$ expression.memberName];
 			
 			default:
 				throw $"Unhandled expression type for expression {expression}";

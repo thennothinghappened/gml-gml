@@ -50,16 +50,16 @@ function AstLocalVarDeclaration(name, value) : AstStatement(AstStatementType.Loc
 	}
 }
 
-/// @param {String} name
+/// @param {Struct.AstExpression} target
 /// @param {Struct.AstExpression} value
-function AstAssign(name, value) : AstStatement(AstStatementType.Assign) constructor
+function AstAssign(target, value) : AstStatement(AstStatementType.Assign) constructor
 {
-	self.name = name;
+	self.target = target;
 	self.value = value;
 	
 	static toString = function()
 	{
-		return $"{self.name} = {self.value};";
+		return $"{self.target} = {self.value};";
 	}
 }
 
@@ -92,7 +92,8 @@ enum AstExpressionType
 	Function,
 	Reference,
 	BinaryOp,
-	UnaryOp
+	UnaryOp,
+	DotAccess
 }
 
 /// @param {Enum.AstExpressionType} type
@@ -148,6 +149,19 @@ function AstExpressionFunction(name, args, body) : AstExpression(AstExpressionTy
 		}
 		
 		return $"function {self.name}({argsString}) {self.body}";
+	}
+}
+
+/// @param {Struct.AstExpression} target
+/// @param {String|undefined} memberName
+function AstExpressionDotAccess(target, memberName) : AstExpression(AstExpressionType.DotAccess) constructor
+{
+	self.target = target;
+	self.memberName = memberName;
+	
+	static toString = function()
+	{
+		return $"{self.target}.{self.memberName}";
 	}
 }
 
@@ -417,31 +431,10 @@ function Parser(lexer) constructor
 					
 						return new AstLocalVarDeclaration(name, value);
 				}
-			
-				self.lexer.next();
-			
-				if (self.accept(TokenType.SingleEquals))
-				{
-					// Variable assignment.
-					return new AstAssign(identName, self.parseExpression());
-				}
-				
-				if (self.accept(TokenType.OpenParenthesis))
-				{
-					// Function call. This is a special case since to disambiguate without a 2-entry lookahead, we need
-					// to already partially consume the input, thus meaning we can't just call `parseExpression()`, which
-					// will expect the entire expression intact.
-					var args = self.parseCallArgs();
-					self.consume(TokenType.CloseParenthesis);
-					
-					return new AstFunctionCall(new AstExpressionFunctionCall(new AstExpressionReference(identName), args));
-				}
-			
-				throw $"Unexpected token {self.lexer.peek()} following identifier:\n{self.lexer.formatOffendingArea()}";
 		}
 		
 		// Might be an expression that's also a valid statement.
-		var expr = self.parseExpression();
+		var expr = self.parseUnaryOperand();
 		
 		switch (expr.type)
 		{
@@ -449,7 +442,12 @@ function Parser(lexer) constructor
 				return new AstFunctionCall(expr);
 		}
 		
-		throw $"unexpected token beginning statement: {token}";
+		if (self.accept(TokenType.SingleEquals))
+		{
+			return new AstAssign(expr, self.parseExpression());
+		}
+		
+		throw $"unexpected token beginning statement: {expr}";
 	}
 	
 	/// @returns {Struct.AstExpression}
@@ -496,21 +494,39 @@ function Parser(lexer) constructor
 		
 		if (is_undefined(op))
 		{
-			var expr = self.parseTerminalExpression();
-			
-			while (self.accept(TokenType.OpenParenthesis))
+			return self.parseUnaryOperand();
+		}
+		
+		self.lexer.next();
+		return new AstExpressionUnaryOp(op, self.parseUnaryOp(bindingPower + 1));
+	}
+	
+	/// @returns {Struct.AstExpression}
+	static parseUnaryOperand = function()
+	{
+		var expr = self.parseTerminalExpression();
+		
+		while (true)
+		{
+			if (self.accept(TokenType.OpenParenthesis))
 			{
 				var args = self.parseCallArgs();
 				self.consume(TokenType.CloseParenthesis);
 				
 				expr = new AstExpressionFunctionCall(expr, args);
 			}
-			
-			return expr;
+			else if (self.accept(TokenType.Period))
+			{
+				var memberName = self.consume(TokenType.Identifier);
+				expr = new AstExpressionDotAccess(expr, memberName.data);
+			}
+			else
+			{
+				break;
+			}
 		}
 		
-		self.lexer.next();
-		return new AstExpressionUnaryOp(op, self.parseUnaryOp(bindingPower + 1));
+		return expr;
 	}
 	
 	/// @returns {Struct.AstExpression}
@@ -552,7 +568,8 @@ function Parser(lexer) constructor
 				return new AstExpressionReference(identName);
 			
 			default:
-				throw $"Unexpected token {token} in expression";
+				self.lexer.next();
+				throw $"Unexpected token {token} in expression:\n{self.lexer.formatOffendingArea()}";
 		}
 	}
 	
