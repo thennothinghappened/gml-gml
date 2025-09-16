@@ -542,6 +542,10 @@ function Parser(lexer) constructor
 				{
 					case "function":
 						return self.parseFunctionDeclaration();
+					
+					case "undefined":
+						self.lexer.next();
+						return new AstExpressionLiteral(undefined);
 				}
 			
 				self.lexer.next();
