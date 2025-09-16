@@ -21,6 +21,7 @@
     {"name":"Interpreter","order":3,"path":"scripts/Interpreter/Interpreter.yy",},
     {"name":"Lexer","order":1,"path":"scripts/Lexer/Lexer.yy",},
     {"name":"Parser","order":2,"path":"scripts/Parser/Parser.yy",},
+    {"name":"trace","order":1,"path":"scripts/trace/trace.yy",},
     {"name":"TYPEHINT","order":4,"path":"scripts/TYPEHINT/TYPEHINT.yy",},
   ],
 }

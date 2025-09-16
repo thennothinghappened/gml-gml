@@ -217,15 +217,23 @@ function AstExpressionFunction(name, args, body) : AstExpression(AstExpressionTy
 }
 
 /// @param {Struct.AstExpression} target
-/// @param {String|undefined} memberName
-function AstExpressionDotAccess(target, memberName) : AstExpression(AstExpressionType.DotAccess) constructor
+/// @param {Struct.AstExpression} memberNameExpr
+function AstExpressionDotAccess(target, memberNameExpr) : AstExpression(AstExpressionType.DotAccess) constructor
 {
 	self.target = target;
-	self.memberName = memberName;
+	self.memberNameExpr = memberNameExpr;
 	
 	static toString = function()
 	{
-		return $"{self.target}.{self.memberName}";
+		if (self.memberNameExpr.type == AstExpressionType.Literal)
+		{	
+			if (is_string(self.memberNameExpr.value))
+			{
+				return $"{self.target}.{self.memberNameExpr.value}";
+			}
+		}
+		
+		return $"{self.target}[$ {self.memberNameExpr}]";
 	}
 }
 
@@ -600,7 +608,14 @@ function Parser(lexer) constructor
 			else if (self.accept(TokenType.Period))
 			{
 				var memberName = self.consume(TokenType.Identifier);
-				expr = new AstExpressionDotAccess(expr, memberName.data);
+				expr = new AstExpressionDotAccess(expr, new AstExpressionLiteral(memberName.data));
+			}
+			else if (self.accept(TokenType.OpenStructMemberAccess))
+			{
+				var memberNameExpr = self.parseExpression();
+				self.consume(TokenType.CloseSquareBracket);
+				
+				expr = new AstExpressionDotAccess(expr, memberNameExpr);
 			}
 			else
 			{
@@ -671,7 +686,7 @@ function Parser(lexer) constructor
 					self.consume(TokenType.Colon);
 					
 					var value = self.parseExpression();
-					array_push(statements, new AstAssign(new AstExpressionDotAccess(new AstExpressionReference("$$struct"), name.data), value));
+					array_push(statements, new AstAssign(new AstExpressionDotAccess(new AstExpressionReference("$$struct"), new AstExpressionLiteral(name.data)), value));
 					
 					if (!self.accept(TokenType.Comma))
 					{

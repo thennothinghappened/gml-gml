@@ -16,6 +16,9 @@ var input = @'
 		};
 	};
 
+	struct[$ "blah" + "uwu"] = "owo";
+	print(struct[$ "blah" + "uwu"]);
+
 	print("testing conditional");
 
 	if (1)

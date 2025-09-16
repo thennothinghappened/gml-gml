@@ -42,6 +42,7 @@
     {"id":{"name":"Lexer","path":"scripts/Lexer/Lexer.yy",},},
     {"id":{"name":"Parser","path":"scripts/Parser/Parser.yy",},},
     {"id":{"name":"Script1","path":"scripts/Script1/Script1.yy",},},
+    {"id":{"name":"trace","path":"scripts/trace/trace.yy",},},
     {"id":{"name":"TYPEHINT","path":"scripts/TYPEHINT/TYPEHINT.yy",},},
   ],
   "resourceType":"GMProject",

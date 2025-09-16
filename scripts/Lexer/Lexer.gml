@@ -8,6 +8,9 @@ enum TokenType
 	CloseParenthesis,
 	OpenBlock,
 	CloseBlock,
+	OpenSquareBracket,
+	OpenStructMemberAccess,
+	CloseSquareBracket,
 	SingleEquals,
 	DoubleEquals,
 	Plus,
@@ -36,6 +39,9 @@ function tokenNameOf(tokenType)
 		tokenNames[TokenType.CloseParenthesis] = "CloseParenthesis";
 		tokenNames[TokenType.OpenBlock] = "OpenBlock";
 		tokenNames[TokenType.CloseBlock] = "CloseBlock";
+		tokenNames[TokenType.OpenSquareBracket] = "OpenSquareBracket";
+		tokenNames[TokenType.OpenStructMemberAccess] = "OpenStructMemberAccess";
+		tokenNames[TokenType.CloseSquareBracket] = "CloseSquareBracket";
 		tokenNames[TokenType.SingleEquals] = "SingleEquals";
 		tokenNames[TokenType.DoubleEquals] = "DoubleEquals";
 		tokenNames[TokenType.Plus] = "Plus";
@@ -135,6 +141,20 @@ function Lexer(text) constructor
 			case "}":
 				self.__nextChar();
 				return new Token(TokenType.CloseBlock);
+			
+			case "[":
+				self.__nextChar();
+				
+				if (self.__acceptChar("$"))
+				{
+					return new Token(TokenType.OpenStructMemberAccess);
+				}
+				
+				return new Token(TokenType.OpenSquareBracket);
+			
+			case "]":
+				self.__nextChar();
+				return new Token(TokenType.CloseSquareBracket);
 			
 			case "=":
 				self.__nextChar();
@@ -383,6 +403,18 @@ function Lexer(text) constructor
 		
 		self.index += 1;
 		return char;
+	}
+	
+	/// @returns {Bool}
+	static __acceptChar = function(expected)
+	{
+		if (self.__peekChar() == expected)
+		{
+			self.__nextChar();
+			return true;
+		}
+		
+		return false;
 	}
 	
 	static formatOffendingArea = function(

@@ -107,7 +107,7 @@ function Interpreter(ast) constructor
 			break;
 
 			case AstExpressionType.DotAccess:
-				self.evaluateExpression(statement.target.target)[$ statement.target.memberName] = value;
+				self.evaluateExpression(statement.target.target)[$ self.evaluateExpression(statement.target.memberNameExpr)] = value;
 			break;
 			
 			default:
@@ -139,7 +139,7 @@ function Interpreter(ast) constructor
 				return self.evaluateUnaryOp(expression);
 			
 			case AstExpressionType.DotAccess:
-				return self.evaluateExpression(expression.target)[$ expression.memberName];
+				return self.evaluateExpression(expression.target)[$ self.evaluateExpression(expression.memberNameExpr)];
 			
 			default:
 				throw $"Unhandled expression type for expression {expression}";
