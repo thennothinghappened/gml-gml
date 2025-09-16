@@ -15,6 +15,8 @@ enum TokenType
 	DoubleEquals,
 	Plus,
 	Minus,
+	Multiply,
+	Divide,
 	Not,
 	Semicolon,
 	Colon,
@@ -46,6 +48,8 @@ function tokenNameOf(tokenType)
 		tokenNames[TokenType.DoubleEquals] = "DoubleEquals";
 		tokenNames[TokenType.Plus] = "Plus";
 		tokenNames[TokenType.Minus] = "Minus";
+		tokenNames[TokenType.Multiply] = "Multiply";
+		tokenNames[TokenType.Divide] = "Divide";
 		tokenNames[TokenType.Not] = "Not";
 		tokenNames[TokenType.Semicolon] = "Semicolon";
 		tokenNames[TokenType.Colon] = "Colon";
@@ -183,6 +187,27 @@ function Lexer(text) constructor
 				self.__nextChar();
 				return new Token(TokenType.Minus);
 			
+			case "*":
+				self.__nextChar();
+				return new Token(TokenType.Multiply);
+			
+			case "/":
+				self.__nextChar();
+				
+				if (self.__acceptChar("/"))
+				{
+					self.__consumeWhile(function(char)
+					{
+						return char != "\n";
+					})
+					
+					return self.next();
+				}
+				else
+				{
+					return new Token(TokenType.Divide);
+				}
+			
 			case "!":
 				self.__nextChar();
 				return new Token(TokenType.Not);
@@ -232,22 +257,6 @@ function Lexer(text) constructor
 				}
 			
 				return new Token(TokenType.String, str);
-			
-			case "/":
-				self.__nextChar();
-				
-				if (self.__peekChar() == "/")
-				{
-					self.__nextChar();
-					self.__consumeWhile(function(char)
-					{
-						return char != "\n";
-					})
-					
-					return self.next();
-				}
-			
-				return new Token(TokenType.Unknown, char);
 		}
 		
 		if ((char == "_") || (string_letters(char) == char))

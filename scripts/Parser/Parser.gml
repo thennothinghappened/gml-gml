@@ -314,8 +314,8 @@ function binaryOpFromToken(token)
 	{
 		case TokenType.Plus: return BinaryOp.Add;
 		case TokenType.Minus: return BinaryOp.Subtract;
-		//case TokenType.D: return BinaryOp.Add;
-		//case TokenType.Plus: return BinaryOp.Add;
+		case TokenType.Multiply: return BinaryOp.Multiply;
+		case TokenType.Divide: return BinaryOp.Divide;
 	}
 	
 	return undefined;

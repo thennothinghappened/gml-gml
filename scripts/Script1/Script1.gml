@@ -21,7 +21,7 @@ var input = @'
 
 	print("testing conditional");
 
-	if (true)
+	if (true * 1)
 	{
 		print("1 is indeed yes");
 	}
