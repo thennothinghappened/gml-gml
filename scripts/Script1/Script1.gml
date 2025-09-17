@@ -13,6 +13,11 @@ var input = @'
 		print("5 times!");
 	}
 
+	for (var index = 0; index < 5; index = index + 1)
+	{
+		print("for loop iter!");
+	}
+
 	var outerStructMem = 3;
 
 	var struct = {

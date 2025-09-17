@@ -132,6 +132,33 @@ function Parser(lexer) constructor
 							]))
 						]);
 					
+					case "for":
+						// Desugars into a while loop much like the above :D
+						self.lexer.next();
+						
+						self.consume(TokenType.OpenParenthesis);
+						
+						var doFirst = self.parseStatement();
+						self.consume(TokenType.Semicolon);
+					
+						var condition = self.parseExpression();
+						self.consume(TokenType.Semicolon);
+					
+						var doEachIteration = self.parseStatement();
+						self.accept(TokenType.Semicolon);
+					
+						self.consume(TokenType.CloseParenthesis);
+					
+						var block = self.parseStatement();
+					
+						return new AstBlock([
+							doFirst,
+							new AstWhile(condition, new AstBlock([
+								block,
+								doEachIteration
+							]))
+						]);
+					
 					case "var":
 						self.lexer.next();
 						
