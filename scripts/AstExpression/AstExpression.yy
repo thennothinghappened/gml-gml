@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"AstExpression",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"AstExpression",
+  "parent":{
+    "name":"IR",
+    "path":"folders/Scripts/IR.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

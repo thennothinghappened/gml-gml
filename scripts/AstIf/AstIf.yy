@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"AstIf",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"AstIf",
+  "parent":{
+    "name":"AstStatement",
+    "path":"folders/Scripts/IR/AstStatement.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}
