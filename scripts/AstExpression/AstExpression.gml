@@ -5,10 +5,11 @@ enum AstExpressionType
 	FunctionCall,
 	Function,
 	Reference,
+	Ternary,
 	BinaryOp,
 	UnaryOp,
 	DotAccess,
-	ArrayAccess
+	ArrayAccess,
 }
 
 /// @param {Enum.AstExpressionType} type

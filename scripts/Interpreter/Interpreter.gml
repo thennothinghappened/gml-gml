@@ -281,6 +281,16 @@ function Interpreter(ast) constructor
 			case AstExpressionType.Reference:
 				return self.evaluateReference(expression);
 			
+			case AstExpressionType.Ternary:
+				if (self.evaluateExpression(expression.condition))
+				{
+					return self.evaluateExpression(expression.thenExpr);
+				}
+				else
+				{
+					return self.evaluateExpression(expression.elseExpr);
+				}
+			
 			case AstExpressionType.BinaryOp:
 				return self.evaluateBinaryOp(expression);
 			

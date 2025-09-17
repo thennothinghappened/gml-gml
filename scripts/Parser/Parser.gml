@@ -332,7 +332,18 @@ function Parser(lexer) constructor
 	/// @returns {Struct.AstExpression}
 	static parseExpression = function()
 	{
-		return self.parseBinaryOp(0);
+		var conditionOrExpr = self.parseBinaryOp(0);
+		
+		if (!self.accept(TokenType.TernaryConditionSeparator))
+		{
+			return conditionOrExpr;
+		}
+		
+		var thenExpr = self.parseBinaryOp(0);
+		self.consume(TokenType.Colon);
+		var elseExpr = self.parseBinaryOp(0);
+		
+		return new AstExpressionTernary(conditionOrExpr, thenExpr, elseExpr);
 	}
 	
 	/// @param {Real} bindingPower

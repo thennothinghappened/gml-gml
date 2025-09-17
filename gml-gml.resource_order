@@ -32,6 +32,7 @@
     {"name":"AstExpressionFunctionCall","order":4,"path":"scripts/AstExpressionFunctionCall/AstExpressionFunctionCall.yy",},
     {"name":"AstExpressionLiteral","order":3,"path":"scripts/AstExpressionLiteral/AstExpressionLiteral.yy",},
     {"name":"AstExpressionReference","order":8,"path":"scripts/AstExpressionReference/AstExpressionReference.yy",},
+    {"name":"AstExpressionTernary","order":9,"path":"scripts/AstExpressionTernary/AstExpressionTernary.yy",},
     {"name":"AstExpressionUnaryOp","order":2,"path":"scripts/AstExpressionUnaryOp/AstExpressionUnaryOp.yy",},
     {"name":"AstFunctionCall","order":1,"path":"scripts/AstFunctionCall/AstFunctionCall.yy",},
     {"name":"AstFunctionDeclaration","order":6,"path":"scripts/AstFunctionDeclaration/AstFunctionDeclaration.yy",},

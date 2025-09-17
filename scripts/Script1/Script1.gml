@@ -5,6 +5,8 @@ var input = @'
 
 	c += 1;
 
+	print(c == 5 ? "yeah its 5" : "its not 5");
+
 	switch (c + 1)
 	{
 		case 5:

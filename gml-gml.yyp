@@ -52,6 +52,7 @@
     {"id":{"name":"AstExpressionFunctionCall","path":"scripts/AstExpressionFunctionCall/AstExpressionFunctionCall.yy",},},
     {"id":{"name":"AstExpressionLiteral","path":"scripts/AstExpressionLiteral/AstExpressionLiteral.yy",},},
     {"id":{"name":"AstExpressionReference","path":"scripts/AstExpressionReference/AstExpressionReference.yy",},},
+    {"id":{"name":"AstExpressionTernary","path":"scripts/AstExpressionTernary/AstExpressionTernary.yy",},},
     {"id":{"name":"AstExpressionUnaryOp","path":"scripts/AstExpressionUnaryOp/AstExpressionUnaryOp.yy",},},
     {"id":{"name":"AstFunctionCall","path":"scripts/AstFunctionCall/AstFunctionCall.yy",},},
     {"id":{"name":"AstFunctionDeclaration","path":"scripts/AstFunctionDeclaration/AstFunctionDeclaration.yy",},},

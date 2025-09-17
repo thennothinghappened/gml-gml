@@ -26,6 +26,7 @@ enum TokenType
 	Colon,
 	Comma,
 	Period,
+	TernaryConditionSeparator,
 	Unknown
 }
 
@@ -63,6 +64,7 @@ function tokenNameOf(tokenType)
 		tokenNames[TokenType.Colon] = "Colon";
 		tokenNames[TokenType.Comma] = "Comma";
 		tokenNames[TokenType.Period] = "Period";
+		tokenNames[TokenType.TernaryConditionSeparator] = "TernaryConditionSeparator";
 		tokenNames[TokenType.Unknown] = "Unknown";
 	}
 	
@@ -202,6 +204,10 @@ function Lexer(text) constructor
 			case ";":
 				self.__nextChar();
 				return new Token(TokenType.Semicolon);
+			
+			case "?":
+				self.__nextChar();
+				return new Token(TokenType.TernaryConditionSeparator);
 			
 			case ":":
 				self.__nextChar();
