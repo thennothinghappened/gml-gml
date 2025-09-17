@@ -57,6 +57,7 @@
     {"id":{"name":"AstLocalVarDeclaration","path":"scripts/AstLocalVarDeclaration/AstLocalVarDeclaration.yy",},},
     {"id":{"name":"AstReturn","path":"scripts/AstReturn/AstReturn.yy",},},
     {"id":{"name":"AstStatement","path":"scripts/AstStatement/AstStatement.yy",},},
+    {"id":{"name":"AstWhile","path":"scripts/AstWhile/AstWhile.yy",},},
     {"id":{"name":"breakable","path":"scripts/breakable/breakable.yy",},},
     {"id":{"name":"indent","path":"scripts/indent/indent.yy",},},
     {"id":{"name":"Interpreter","path":"scripts/Interpreter/Interpreter.yy",},},

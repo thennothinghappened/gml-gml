@@ -5,6 +5,7 @@ enum AstStatementType
 	FunctionCall,
 	LocalVarDeclaration,
 	If,
+	While,
 	Assign,
 	DeclareFunction,
 	Return

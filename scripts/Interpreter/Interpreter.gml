@@ -56,6 +56,19 @@ function Interpreter(ast) constructor
 				
 					return undefined;
 				
+				case AstStatementType.While:
+					while (self.evaluateExpression(statement.condition))
+					{
+						var result = self.executeStatement(statement.block);
+						
+						if (result != undefined)
+						{
+							return result;
+						}
+					}
+				
+					return undefined;
+				
 				case AstStatementType.Assign:
 					self.executeAssign(statement);
 					return undefined;

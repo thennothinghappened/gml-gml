@@ -36,6 +36,7 @@
     {"name":"AstIf","order":3,"path":"scripts/AstIf/AstIf.yy",},
     {"name":"AstLocalVarDeclaration","order":2,"path":"scripts/AstLocalVarDeclaration/AstLocalVarDeclaration.yy",},
     {"name":"AstReturn","order":5,"path":"scripts/AstReturn/AstReturn.yy",},
+    {"name":"AstWhile","order":7,"path":"scripts/AstWhile/AstWhile.yy",},
     {"name":"breakable","order":2,"path":"scripts/breakable/breakable.yy",},
     {"name":"Interpreter","order":3,"path":"scripts/Interpreter/Interpreter.yy",},
     {"name":"Lexer","order":1,"path":"scripts/Lexer/Lexer.yy",},

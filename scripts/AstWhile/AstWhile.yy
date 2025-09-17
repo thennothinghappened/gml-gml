@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"AstWhile",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"AstWhile",
+  "parent":{
+    "name":"AstStatement",
+    "path":"folders/Scripts/IR/AstStatement.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

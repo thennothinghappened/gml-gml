@@ -59,7 +59,7 @@ function Parser(lexer) constructor
 				return new AstBlock(statements);
 			
 			case TokenType.CloseBlock:
-				self.lexer.next();	
+				self.lexer.next();
 			
 				if (withinBlock)
 				{
@@ -100,6 +100,14 @@ function Parser(lexer) constructor
 						}
 					
 						return new AstIf(condition, block, elseBlock);
+					
+					case "while":
+						self.lexer.next();
+						
+						var condition = self.parseExpression();
+						var block = self.parseStatement();
+					
+						return new AstWhile(condition, block);
 					
 					case "var":
 						self.lexer.next();
