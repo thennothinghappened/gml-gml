@@ -706,6 +706,41 @@ function Parser(lexer) constructor
 				array_push(statements, new AstReturn(new AstExpressionReference("$$struct")));
 				return new AstExpressionFunctionCall(new AstExpressionFunction(undefined, [], new AstBlock(statements)), []);
 			
+			case TokenType.OpenSquareBracket:
+				// Array literal!
+				//
+				// We'll use the same approach as for struct literals (IIFE) :)
+				self.lexer.next();
+			
+				/// @param {Any} ...
+				/// @returns {Array}
+				static createArrayLiteral = new AstExpressionLiteral(function() {
+					var array = array_create(argument_count);
+					
+					for (var i = 0; i < argument_count; i ++)
+					{
+						array[i] = argument[i];
+					}
+					
+					return array;
+				});
+			
+				var entries = [];
+			
+				while (!self.accept(TokenType.CloseSquareBracket))
+				{
+					var entry = self.parseExpression();
+					array_push(entries, entry);
+					
+					if (!self.accept(TokenType.Comma))
+					{
+						self.consume(TokenType.CloseSquareBracket);
+						break;
+					}
+				}
+			
+				return new AstExpressionFunctionCall(createArrayLiteral, entries);
+			
 			default:
 				self.lexer.next();
 				throw $"Unexpected token {token} in expression:\n{self.lexer.formatOffendingArea()}";

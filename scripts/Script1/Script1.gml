@@ -21,6 +21,9 @@ var input = @'
 
 	print("testing conditional");
 
+	var array = [2, 3];
+	print(array);
+
 	if (true * 1)
 	{
 		print("1 is indeed yes");
