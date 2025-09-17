@@ -49,11 +49,13 @@ function AstBlock(statements, injectIntoParentScope = false) : AstStatement(AstS
 			};
 		}, { outString: "" }).outString;
 		
+		outString = "{" + indent(outString) + "\n}";
+		
 		if (self.injectIntoParentScope)
 		{
-			return string_trim(outString, ["\n"]);
+			outString = "unscoped " + outString;
 		}
 		
-		return "{" + indent(outString) + "\n}";
+		return outString;
 	}
 }
