@@ -12,4 +12,8 @@ function AstExpressionLiteral(value) : AstExpression(AstExpressionType.Literal) 
 		
 		return string(self.value);
 	}
+	
+	static TRUE = new AstExpressionLiteral(true);
+	static FALSE = new AstExpressionLiteral(false);
+	static UNDEFINED = new AstExpressionLiteral(undefined);
 }

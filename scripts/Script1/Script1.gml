@@ -19,6 +19,18 @@ var input = @'
 		break;
 	}
 
+	for (var i = 0; i < 10; i += 1)
+	{
+		if (int64(i / 3) == 0)
+		{
+			print("continuing for " + string(i));
+			continue;
+		}
+		
+		print("didnt continue for " + string(i));
+		break;
+	}
+
 	print(c);
 ';
 

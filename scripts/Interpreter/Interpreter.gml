@@ -71,26 +71,41 @@ function Interpreter(ast) constructor
 				case AstStatementType.While:
 					while (self.evaluateExpression(statement.condition))
 					{
-						var result;
+						var result = undefined;
+						var err = undefined;
 						
 						try
 						{
 							result = self.executeStatement(statement.block);
 						}
-						catch (err)
+						catch (_err)
 						{
-							if (is_instanceof(err, InterpreterBreakException))
-							{
-								return undefined;
-							}
-							
-							throw err;
+							err = _err;
 						}
 						
 						if (result != undefined)
 						{
 							return result;
 						}
+						
+						if (err == undefined)
+						{
+							continue;
+						}
+						
+						if (is_instanceof(err, InterpreterBreakException))
+						{
+							if (err.shouldContinue)
+							{
+								continue;
+							}
+							else
+							{
+								break;
+							}
+						}
+						
+						throw err;
 					}
 				
 					return undefined;
@@ -107,7 +122,57 @@ function Interpreter(ast) constructor
 					return self.evaluateExpression(statement.value);
 				
 				case AstStatementType.Break:
-					throw new InterpreterBreakException();
+					throw new InterpreterBreakException(false);
+				
+				case AstStatementType.Continue:
+					throw new InterpreterBreakException(true);
+				
+				case AstStatementType.Try:
+					var result = undefined;
+					var err = undefined;
+				
+					try
+					{
+						result = self.executeStatement(statement.tryBlock);
+					}
+					catch (_err)
+					{
+						err = _err;
+						
+						if (!is_instanceof(err, InterpreterBreakException))
+						{
+							if (statement.catchFunc != undefined)
+							{
+								try
+								{
+									result = self.executeBlock(new AstBlock([
+										new AstLocalVarDeclaration(statement.catchFunc.args[0].name),
+										statement.catchFunc.body
+									]));
+									
+									err = undefined;
+								}
+								catch (_err)
+								{
+									err = _err;
+									throw err;
+								}
+							}
+						}
+					}
+				
+					if (statement.finallyBlock != undefined)
+					{
+						var finallyResult = self.executeStatement(statement.finallyBlock);
+						result ??= finallyResult;
+					}
+				
+					if (err != undefined)
+					{
+						throw err;
+					}
+				
+					return result;
 				
 				default:
 					throw $"Unhandled statement type for statement {statement}";
@@ -399,5 +464,8 @@ function Interpreter(ast) constructor
 	}
 }
 
-function InterpreterBreakException() constructor
-{}
+/// @param {Bool} shouldContinue
+function InterpreterBreakException(shouldContinue) constructor
+{
+	self.shouldContinue = shouldContinue;
+}

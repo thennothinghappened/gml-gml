@@ -191,10 +191,11 @@ function Parser(lexer) constructor
 					
 						return new AstBlock([
 							doFirst,
-							new AstWhile(condition, new AstBlock([
+							new AstWhile(condition, new AstTry(
 								block,
+								undefined,
 								doEachIteration
-							], true))
+							))
 						]);
 					
 					case "switch":

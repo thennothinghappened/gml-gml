@@ -10,7 +10,8 @@ enum AstStatementType
 	DeclareFunction,
 	Return,
 	Break,
-	Continue
+	Continue,
+	Try
 }
 
 /// @param {Enum.AstStatementType} type
