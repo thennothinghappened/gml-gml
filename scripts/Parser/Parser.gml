@@ -64,10 +64,11 @@ function Parser(lexer) constructor
 			
 				while (!self.accept(TokenType.CloseBlock))
 				{
-					var statement = self.parseStatement(true);
+					var statement = self.parseStatement(StatementContext.Block);
 			
 					if (is_undefined(statement))
 					{
+						self.consume(TokenType.CloseBlock);
 						break;
 					}
 					
