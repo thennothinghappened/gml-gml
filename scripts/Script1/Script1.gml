@@ -43,13 +43,14 @@ var input = @'
 
 	function blah(a)
 	{
-		print(a);
-		
 		for (var i = 0; i < argument_count; i += 1)
 		{
 			print("argument " + string(i) + " = " + string(argument[i]));
 		}
 	}
+	
+	print("escape chars test!! newline: (\\n) = \n, tab: (\\t) = \t");
+
 
 	blah(1, 2, 3);
 ';

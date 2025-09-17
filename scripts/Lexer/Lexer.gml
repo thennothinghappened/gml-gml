@@ -250,6 +250,11 @@ function Lexer(text) constructor
 			
 			case "\"":
 				self.__nextChar();
+			
+				static escapeCharMap = {
+					"n": "\n",
+					"t": "\t"
+				};
 				
 				var escapeNext = false;
 				var str = "";
@@ -279,6 +284,11 @@ function Lexer(text) constructor
 					else
 					{
 						escapeNext = false;
+						
+						if (struct_exists(escapeCharMap, char))
+						{
+							char = escapeCharMap[$ char];
+						}
 					}
 					
 					str += char;
