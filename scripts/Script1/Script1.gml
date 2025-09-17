@@ -28,7 +28,7 @@ var input = @'
 				continue;
 			}
 			
-			throw "oh no";
+			//throw "oh no";
 			
 			print("didnt continue for " + string(i));
 			break;
@@ -40,6 +40,18 @@ var input = @'
 	}
 
 	print(c);
+
+	function blah(a)
+	{
+		print(a);
+		
+		for (var i = 0; i < argument_count; i += 1)
+		{
+			print("argument " + string(i) + " = " + string(argument[i]));
+		}
+	}
+
+	blah(1, 2, 3);
 ';
 
 var lexer = new Lexer(input);

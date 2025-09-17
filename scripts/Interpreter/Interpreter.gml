@@ -396,15 +396,26 @@ function Interpreter(ast) constructor
 				
 				self.scope = {
 					parentScope,
-					variables: {}
+					variables: {
+						argument: [],
+						argument_count
+					}
 				};
 				
-				for (var i = 0; i < array_length(expr.args); i ++)
+				for (var i = 0; i < argument_count; i ++)
 				{
-					var arg = expr.args[i];
-					var value = argument[i] ?? self.evaluateExpression(arg.defaultValue);
+					var value = argument[i];
 					
-					self.scope.variables[$ arg.name] = value;
+					if (array_length(expr.args) > i)
+					{
+						var arg = expr.args[i];
+					
+						value ??= self.evaluateExpression(arg.defaultValue);
+						self.scope.variables[$ arg.name] = value;
+					}
+					
+					self.scope.variables[$ $"argument{i}"] = value;
+					self.scope.variables.argument[i] = value;
 				}
 				
 				var result = self.executeStatement(expr.body);
