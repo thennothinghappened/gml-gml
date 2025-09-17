@@ -177,16 +177,19 @@ function Interpreter(ast) constructor
 	/// @param {Struct.AstExpressionBinaryOp} expr
 	static evaluateBinaryOp = function(expr)
 	{
+		// Sneaky tiny optimisation, only eagarly eval lhs (for and/or).
+		var lhs = self.evaluateExpression(expr.lhs);
+		
 		switch (expr.op)
 		{
 			case BinaryOp.Add:
-				return self.evaluateExpression(expr.lhs) + self.evaluateExpression(expr.rhs);
+				return lhs + self.evaluateExpression(expr.rhs);
 			
 			case BinaryOp.Subtract:
-				return self.evaluateExpression(expr.lhs) - self.evaluateExpression(expr.rhs);
+				return lhs - self.evaluateExpression(expr.rhs);
 			
 			case BinaryOp.Multiply:
-				return self.evaluateExpression(expr.lhs) * self.evaluateExpression(expr.rhs);
+				return lhs * self.evaluateExpression(expr.rhs);
 			
 			case BinaryOp.Divide:
 				return self.evaluateExpression(expr.lhs) / self.evaluateExpression(expr.rhs);
