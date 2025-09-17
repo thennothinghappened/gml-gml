@@ -537,7 +537,7 @@ function Parser(lexer) constructor
 			return new AstAssign(expr, self.parseExpression());
 		}
 		
-		throw $"unexpected token beginning statement: {expr}";
+		throw $"unexpected token beginning statement: {expr}, at:\n{self.lexer.formatOffendingArea()}";
 	}
 	
 	/// @returns {Struct.AstExpression}

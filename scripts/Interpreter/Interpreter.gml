@@ -27,41 +27,48 @@ function Interpreter(ast) constructor
 	/// @param {Struct.AstStatement} statement
 	static executeStatement = function(statement)
 	{
-		switch (statement.type)
+		try
 		{
-			case AstStatementType.Block:
-				return self.executeBlock(statement.statements);
-			
-			case AstStatementType.FunctionCall:
-				self.evaluateFunctionCall(statement.call);
-				return undefined;
-			
-			case AstStatementType.LocalVarDeclaration:
-				self.declareVariable(statement.name, self.evaluateExpression(statement.value));
-				return undefined;
-			
-			case AstStatementType.If:
-				if (self.evaluateExpression(statement.condition))
-				{
-					return self.executeStatement(statement.block);
-				}
-				else if (statement.elseBlock != undefined)
-				{
-					return self.executeStatement(statement.elseBlock);
-				}
-			
-				return undefined;
-			
-			case AstStatementType.Assign:
-				self.executeAssign(statement);
-				return undefined;
-			
-			case AstStatementType.DeclareFunction:
-				self.evaluateFunctionDefinition(statement.func);
-				return undefined;
-			
-			case AstStatementType.Return:
-				return self.evaluateExpression(statement.value);
+			switch (statement.type)
+			{
+				case AstStatementType.Block:
+					return self.executeBlock(statement.statements);
+				
+				case AstStatementType.FunctionCall:
+					self.evaluateFunctionCall(statement.call);
+					return undefined;
+				
+				case AstStatementType.LocalVarDeclaration:
+					self.declareVariable(statement.name, self.evaluateExpression(statement.value));
+					return undefined;
+				
+				case AstStatementType.If:
+					if (self.evaluateExpression(statement.condition))
+					{
+						return self.executeStatement(statement.block);
+					}
+					else if (statement.elseBlock != undefined)
+					{
+						return self.executeStatement(statement.elseBlock);
+					}
+				
+					return undefined;
+				
+				case AstStatementType.Assign:
+					self.executeAssign(statement);
+					return undefined;
+				
+				case AstStatementType.DeclareFunction:
+					self.evaluateFunctionDefinition(statement.func);
+					return undefined;
+				
+				case AstStatementType.Return:
+					return self.evaluateExpression(statement.value);
+			}
+		}
+		catch (err)
+		{
+			throw $"{err}\n\tin statement: {statement}";
 		}
 	}
 	
