@@ -679,13 +679,25 @@ function Parser(lexer) constructor
 				// using an IIFE.
 				self.lexer.next();
 			
-				static createStruct = new AstExpressionLiteral(function() {
-					return {};
+				static createStruct = new AstExpressionLiteral(function()
+				{
+					var struct = {};
+					
+					for (var i = 0; i < argument_count; i ++)
+					{
+						var entry = argument[i];
+						struct[$ entry.name] = entry.value;
+					}
+					
+					return struct;
 				});
 			
-				var statements = [
-					new AstLocalVarDeclaration("$$struct", new AstExpressionFunctionCall(createStruct, []))
-				];
+				static createStructEntry = new AstExpressionLiteral(function(name, value)
+				{
+					return { name, value };
+				});
+			
+				var memberDefinitions = [];
 				
 				while (!self.accept(TokenType.CloseBlock))
 				{
@@ -694,7 +706,7 @@ function Parser(lexer) constructor
 					self.consume(TokenType.Colon);
 					
 					var value = self.parseExpression();
-					array_push(statements, new AstAssign(new AstExpressionDotAccess(new AstExpressionReference("$$struct"), new AstExpressionLiteral(name.data)), value));
+					array_push(memberDefinitions, new AstExpressionFunctionCall(createStructEntry, [new AstExpressionLiteral(name.data), value]));
 					
 					if (!self.accept(TokenType.Comma))
 					{
@@ -703,8 +715,7 @@ function Parser(lexer) constructor
 					}
 				}
 			
-				array_push(statements, new AstReturn(new AstExpressionReference("$$struct")));
-				return new AstExpressionFunctionCall(new AstExpressionFunction(undefined, [], new AstBlock(statements)), []);
+				return new AstExpressionFunctionCall(createStruct, memberDefinitions);
 			
 			case TokenType.OpenSquareBracket:
 				// Array literal!

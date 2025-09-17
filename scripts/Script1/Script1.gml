@@ -1,7 +1,10 @@
 
 var input = @'
+	var outerStructMem = 3;
+
 	var struct = {
 		stuff: "whoa",
+		outerStructMem: outerStructMem,
 		idkLol: function()
 		{
 			return 3;
