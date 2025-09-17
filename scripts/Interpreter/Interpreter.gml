@@ -192,7 +192,22 @@ function Interpreter(ast) constructor
 				return lhs * self.evaluateExpression(expr.rhs);
 			
 			case BinaryOp.Divide:
-				return self.evaluateExpression(expr.lhs) / self.evaluateExpression(expr.rhs);
+				return lhs / self.evaluateExpression(expr.rhs);
+			
+			case BinaryOp.Equal:
+				return lhs == self.evaluateExpression(expr.rhs);
+			
+			case BinaryOp.GreaterThan:
+				return lhs > self.evaluateExpression(expr.rhs);
+			
+			case BinaryOp.LessThan:
+				return lhs < self.evaluateExpression(expr.rhs);
+			
+			case BinaryOp.GreaterOrEqual:
+				return lhs >= self.evaluateExpression(expr.rhs);
+			
+			case BinaryOp.LessOrEqual:
+				return lhs <= self.evaluateExpression(expr.rhs);
 			
 			default:
 				throw $"Unhandled binary operator {expr.op} for expression {expr}";

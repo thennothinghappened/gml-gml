@@ -13,6 +13,10 @@ enum TokenType
 	CloseSquareBracket,
 	SingleEquals,
 	DoubleEquals,
+	GreaterThan,
+	LessThan,
+	GreaterOrEqual,
+	LessOrEqual,
 	Plus,
 	Minus,
 	Multiply,
@@ -46,6 +50,10 @@ function tokenNameOf(tokenType)
 		tokenNames[TokenType.CloseSquareBracket] = "CloseSquareBracket";
 		tokenNames[TokenType.SingleEquals] = "SingleEquals";
 		tokenNames[TokenType.DoubleEquals] = "DoubleEquals";
+		tokenNames[TokenType.GreaterThan] = "GreaterThan";
+		tokenNames[TokenType.LessThan] = "LessThan";
+		tokenNames[TokenType.GreaterOrEqual] = "GreaterOrEqual";
+		tokenNames[TokenType.LessOrEqual] = "LessOrEqual";
 		tokenNames[TokenType.Plus] = "Plus";
 		tokenNames[TokenType.Minus] = "Minus";
 		tokenNames[TokenType.Multiply] = "Multiply";
@@ -170,6 +178,26 @@ function Lexer(text) constructor
 				}
 			
 				return new Token(TokenType.SingleEquals);
+			
+			case ">":
+				self.__nextChar();
+			
+				if (self.__acceptChar("="))
+				{
+					return new Token(TokenType.GreaterOrEqual);
+				}
+			
+				return new Token(TokenType.GreaterThan);
+			
+			case "<":
+				self.__nextChar();
+			
+				if (self.__acceptChar("="))
+				{
+					return new Token(TokenType.LessOrEqual);
+				}
+			
+				return new Token(TokenType.LessThan);
 				
 			case ";":
 				self.__nextChar();
