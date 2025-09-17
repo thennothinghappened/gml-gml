@@ -88,24 +88,22 @@ function Interpreter(ast) constructor
 							return result;
 						}
 						
-						if (err == undefined)
+						if (err != undefined)
 						{
-							continue;
-						}
-						
-						if (is_instanceof(err, InterpreterBreakException))
-						{
-							if (err.shouldContinue)
+							if (is_instanceof(err, RuntimeBreakException))
 							{
-								continue;
+								if (err.shouldContinue)
+								{
+									continue;
+								}
+								else
+								{
+									break;
+								}
 							}
-							else
-							{
-								break;
-							}
+							
+							throw err;
 						}
-						
-						throw err;
 					}
 				
 					return undefined;
@@ -121,43 +119,58 @@ function Interpreter(ast) constructor
 				case AstStatementType.Return:
 					return self.evaluateExpression(statement.value);
 				
+				case AstStatementType.Throw:
+					throw new RuntimeThrownException(self.evaluateExpression(statement.value));
+				
 				case AstStatementType.Break:
-					throw new InterpreterBreakException(false);
+					throw new RuntimeBreakException(false);
 				
 				case AstStatementType.Continue:
-					throw new InterpreterBreakException(true);
+					throw new RuntimeBreakException(true);
 				
 				case AstStatementType.Try:
 					var result = undefined;
-					var err = undefined;
+				
+					// Error to be thrown after finally {}, if one occurred.
+					var postponedError = undefined;
 				
 					try
 					{
 						result = self.executeStatement(statement.tryBlock);
 					}
-					catch (_err)
+					catch (caughtError)
 					{
-						err = _err;
-						
-						if (!is_instanceof(err, InterpreterBreakException))
+						// Re-throw if this is an interpreter error.
+						if (!is_instanceof(caughtError, RuntimeException))
 						{
-							if (statement.catchFunc != undefined)
+							throw caughtError;
+						}
+						
+						// Handle errors that were created within the confines of the runtime (e.g. throw <expr>).
+						if (is_instanceof(caughtError, RuntimeThrownException) && (statement.catchFunc != undefined))
+						{
+							try
 							{
-								try
-								{
-									result = self.executeBlock(new AstBlock([
-										new AstLocalVarDeclaration(statement.catchFunc.args[0].name),
-										statement.catchFunc.body
-									]));
-									
-									err = undefined;
-								}
-								catch (_err)
-								{
-									err = _err;
-									throw err;
-								}
+								result = self.executeBlock(new AstBlock([
+									new AstLocalVarDeclaration(statement.catchFunc.args[0].name, new AstExpressionLiteral(caughtError.value)),
+									statement.catchFunc.body
+								]));
+								
+								postponedError = undefined;
 							}
+							catch (errorInCatch)
+							{
+								if (!is_instanceof(errorInCatch, RuntimeThrownException))
+								{
+									throw errorInCatch;
+								}
+								
+								postponedError = errorInCatch;
+							}
+						}
+						else
+						{
+							postponedError = caughtError;
 						}
 					}
 				
@@ -167,9 +180,9 @@ function Interpreter(ast) constructor
 						result ??= finallyResult;
 					}
 				
-					if (err != undefined)
+					if (postponedError != undefined)
 					{
-						throw err;
+						throw postponedError;
 					}
 				
 					return result;
@@ -180,7 +193,7 @@ function Interpreter(ast) constructor
 		}
 		catch (err)
 		{
-			if (is_instanceof(err, InterpreterBreakException))
+			if (is_instanceof(err, RuntimeException))
 			{
 				throw err;
 			}
@@ -464,8 +477,17 @@ function Interpreter(ast) constructor
 	}
 }
 
+function RuntimeException() constructor
+{}
+
+/// @param {Any} value
+function RuntimeThrownException(value) : RuntimeException() constructor
+{
+	self.value = value;
+}
+
 /// @param {Bool} shouldContinue
-function InterpreterBreakException(shouldContinue) constructor
+function RuntimeBreakException(shouldContinue) : RuntimeException() constructor
 {
 	self.shouldContinue = shouldContinue;
 }

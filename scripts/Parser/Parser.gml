@@ -97,6 +97,10 @@ function Parser(lexer) constructor
 						self.lexer.next();
 						return new AstReturn(self.parseExpression());
 					
+					case "throw":
+						self.lexer.next();
+						return new AstThrow(self.parseExpression());
+					
 					case "break":
 						self.lexer.next();
 						return new AstBreak();
@@ -243,6 +247,32 @@ function Parser(lexer) constructor
 						
 						array_push(block.statements, new AstBreak());
 						return new AstWhile(new AstExpressionLiteral(true), block);
+					
+					case "try":
+						self.lexer.next();
+					
+						var tryBlock = self.parseStatement();
+						var catchFunc = undefined;
+						var finallyBlock = undefined;
+						
+						if (self.nextIs(TokenType.Identifier) && self.lexer.peek().data == "catch")
+						{
+							self.lexer.next();
+							
+							self.consume(TokenType.OpenParenthesis);
+							var errorVarName = new AstFunctionArgument(self.consume(TokenType.Identifier).data);
+							self.consume(TokenType.CloseParenthesis);
+							
+							catchFunc = new AstExpressionFunction(undefined, [errorVarName], self.parseStatement());
+						}
+					
+						if (self.nextIs(TokenType.Identifier) && self.lexer.peek().data == "finally")
+						{
+							self.lexer.next();
+							finallyBlock = self.parseStatement();
+						}
+					
+						return new AstTry(tryBlock, catchFunc, finallyBlock);
 					
 					case "var":
 						self.lexer.next();

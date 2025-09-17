@@ -11,7 +11,8 @@ enum AstStatementType
 	Return,
 	Break,
 	Continue,
-	Try
+	Try,
+	Throw
 }
 
 /// @param {Enum.AstStatementType} type

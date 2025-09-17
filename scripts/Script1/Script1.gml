@@ -21,14 +21,22 @@ var input = @'
 
 	for (var i = 0; i < 10; i += 1)
 	{
-		if (int64(i / 3) == 0)
-		{
-			print("continuing for " + string(i));
-			continue;
+		try {
+			if (int64(i / 3) == 0)
+			{
+				print("continuing for " + string(i));
+				continue;
+			}
+			
+			throw "oh no";
+			
+			print("didnt continue for " + string(i));
+			break;
+		} catch (err) {
+			print("caught err " + string(err));
+		} finally {
+			print("after!");
 		}
-		
-		print("didnt continue for " + string(i));
-		break;
 	}
 
 	print(c);

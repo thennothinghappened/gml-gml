@@ -38,6 +38,7 @@
     {"name":"AstIf","order":3,"path":"scripts/AstIf/AstIf.yy",},
     {"name":"AstLocalVarDeclaration","order":2,"path":"scripts/AstLocalVarDeclaration/AstLocalVarDeclaration.yy",},
     {"name":"AstReturn","order":5,"path":"scripts/AstReturn/AstReturn.yy",},
+    {"name":"AstThrow","order":11,"path":"scripts/AstThrow/AstThrow.yy",},
     {"name":"AstTry","order":10,"path":"scripts/AstTry/AstTry.yy",},
     {"name":"AstWhile","order":7,"path":"scripts/AstWhile/AstWhile.yy",},
     {"name":"breakable","order":2,"path":"scripts/breakable/breakable.yy",},
