@@ -1,12 +1,14 @@
 
 /// @param {Array<Struct.AstStatement>} statements
-function AstBlock(statements) : AstStatement(AstStatementType.Block) constructor
+/// @param {Bool} [injectIntoParentScope] Whether this block should be treated as part of the parent. This allows a block to be used as a carrier for a list of statements, which are functionally one statement.
+function AstBlock(statements, injectIntoParentScope = false) : AstStatement(AstStatementType.Block) constructor
 {
 	self.statements = statements;
+	self.injectIntoParentScope = injectIntoParentScope;
 	
 	static toString = function()
 	{
-		return "{" + indent(array_reduce(self.statements, function(prev, current)
+		var outString = array_reduce(self.statements, function(prev, current)
 		{
 			static isAssignment = function(statement)
 			{
@@ -45,6 +47,13 @@ function AstBlock(statements) : AstStatement(AstStatementType.Block) constructor
 				ast: current,
 				outString
 			};
-		}, { outString: "" }).outString) + "\n}";
+		}, { outString: "" }).outString;
+		
+		if (self.injectIntoParentScope)
+		{
+			return string_trim(outString, ["\n"]);
+		}
+		
+		return "{" + indent(outString) + "\n}";
 	}
 }

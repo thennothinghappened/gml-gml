@@ -46,7 +46,7 @@ function Interpreter(ast) constructor
 			switch (statement.type)
 			{
 				case AstStatementType.Block:
-					return self.executeBlock(statement.statements);
+					return self.executeBlock(statement);
 				
 				case AstStatementType.FunctionCall:
 					self.evaluateFunctionCall(statement.call);
@@ -99,21 +99,26 @@ function Interpreter(ast) constructor
 		}
 	}
 	
-	/// @param {Array<Struct.AstStatement>} statements
-	static executeBlock = function(statements)
+	/// @param {Struct.AstBlock} block
+	static executeBlock = function(block)
 	{
-		// Begin a new scope.
-		var parentScope = self.scope;
-		
-		self.scope = {};
-		static_set(self.scope, parentScope);
+		if (!block.injectIntoParentScope)
+		{
+			// Begin a new scope.
+			var parentScope = self.scope;
+			
+			self.scope = {
+				parentScope,
+				variables: {}
+			};
+		}
 		
 		// Execute each statement.
 		var result = undefined;
 		
-		for (var i = 0; i < array_length(statements); i ++)
+		for (var i = 0; i < array_length(block.statements); i ++)
 		{
-			result = self.executeStatement(statements[i]);
+			result = self.executeStatement(block.statements[i]);
 			
 			if (!is_undefined(result))
 			{
@@ -122,8 +127,11 @@ function Interpreter(ast) constructor
 			}
 		}
 		
-		// Restore the parent scope.
-		self.scope = parentScope;
+		if (!block.injectIntoParentScope)
+		{
+			// Restore the parent scope.
+			self.scope = self.scope.parentScope;
+		}
 		
 		// If non-undefined, return was hit - we're done.
 		return result;
@@ -281,20 +289,23 @@ function Interpreter(ast) constructor
 			
 			with (_self)
 			{
-				var oldScope = self.scope;
-				self.scope = {};
-				static_set(self.scope, self.globalScope);
+				var parentScope = self.scope;
+				
+				self.scope = {
+					parentScope,
+					variables: {}
+				};
 				
 				for (var i = 0; i < array_length(expr.args); i ++)
 				{
 					var arg = expr.args[i];
 					var value = argument[i] ?? self.evaluateExpression(arg.defaultValue);
 					
-					self.scope[$ arg.name] = value;
+					self.scope.variables[$ arg.name] = value;
 				}
 				
 				var result = self.executeStatement(expr.body);
-				self.scope = oldScope;
+				self.scope = parentScope;
 				
 				return result;
 			}
