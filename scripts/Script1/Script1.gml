@@ -1,60 +1,9 @@
 
 var input = @'
-	var i = 0;
+	var a = 2, b = 3;
+	var c = 4;
 
-	while (i < 3)
-	{
-		i = i + 1;
-		print(i);
-	}
-
-	repeat (5)
-	{
-		print("5 times!");
-	}
-
-	for (var index = 0; index < 5; index = index + 1)
-	{
-		print("for loop iter #" + string(index));
-	}
-
-	var outerStructMem = 3;
-
-	var struct = {
-		stuff: "whoa",
-		outerStructMem,
-		idkLol: function()
-		{
-			return 3;
-		}
-	};
-	
-	struct.blah = function() {
-		return {
-			innerFunc: function() {
-				print("hello!");
-			}
-		};
-	};
-
-	struct[$ "blah" + "uwu"] = "owo";
-	print(struct[$ "blah" + "uwu"]);
-
-	print("testing conditional");
-
-	var array = [2, 3];
-	print(array[1]);
-
-	if (true * 1)
-	{
-		print("1 is indeed yes");
-	}
-	else
-	{
-		print("1 is not???");
-	}
-
-	return struct;
+	print(b);
 ';
 
 var lexer = new Lexer(input);

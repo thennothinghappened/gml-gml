@@ -129,7 +129,7 @@ function Parser(lexer) constructor
 							new AstWhile(new AstExpressionBinaryOp(BinaryOp.LessThan, indexVar, countVar), new AstBlock([
 								block,
 								new AstAssign(indexVar, new AstExpressionBinaryOp(BinaryOp.Add, indexVar, new AstExpressionLiteral(1)))
-							]))
+							], true))
 						]);
 					
 					case "for":
@@ -156,22 +156,33 @@ function Parser(lexer) constructor
 							new AstWhile(condition, new AstBlock([
 								block,
 								doEachIteration
-							]))
+							], true))
 						]);
 					
 					case "var":
 						self.lexer.next();
-						
-						// TODO: support var a = ..., b = ...;
-						var name = self.consume(TokenType.Identifier).data;
-						var value = undefined;
-						
-						if (self.accept(TokenType.SingleEquals))
+					
+						var block = new AstBlock([], true);
+					
+						while (true)
 						{
-							value = self.parseExpression();
+							var name = self.consume(TokenType.Identifier).data;
+							var value = undefined;
+							
+							if (self.accept(TokenType.SingleEquals))
+							{
+								value = self.parseExpression();
+							}
+							
+							array_push(block.statements, new AstLocalVarDeclaration(name, value));
+							
+							if (!self.accept(TokenType.Comma))
+							{
+								break;
+							}
 						}
 					
-						return new AstLocalVarDeclaration(name, value);
+						return block;
 				}
 		}
 		
