@@ -4,6 +4,9 @@ function Parser(lexer) constructor
 {
 	self.lexer = lexer;
 	
+	/// @ignore
+	self.__nextUID = 0;
+	
 	/// @returns {Struct.AstStatement}
 	static parse = function()
 	{
@@ -108,6 +111,23 @@ function Parser(lexer) constructor
 						var block = self.parseStatement();
 					
 						return new AstWhile(condition, block);
+					
+					case "repeat":
+						// Desugars to a while loop with a secret i variable.
+						self.lexer.next();
+					
+						var countExpr = self.parseExpression();
+						var block = self.parseStatement();
+					
+						var indexVar = new AstExpressionReference($"$$repeat_index_{self.nextUID()}");
+					
+						return new AstBlock([
+							new AstLocalVarDeclaration(indexVar.name, new AstExpressionLiteral(0)),
+							new AstWhile(new AstExpressionBinaryOp(BinaryOp.LessThan, indexVar, countExpr), new AstBlock([
+								block,
+								new AstAssign(indexVar, new AstExpressionBinaryOp(BinaryOp.Add, indexVar, new AstExpressionLiteral(1)))
+							]))
+						]);
 					
 					case "var":
 						self.lexer.next();
@@ -476,5 +496,10 @@ function Parser(lexer) constructor
 		}
 		
 		return (token.type == expected);
+	}
+	
+	static nextUID = function()
+	{
+		return self.__nextUID ++;
 	}
 }

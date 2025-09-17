@@ -8,6 +8,11 @@ var input = @'
 		print(i);
 	}
 
+	repeat (5)
+	{
+		print("5 times!");
+	}
+
 	var outerStructMem = 3;
 
 	var struct = {
