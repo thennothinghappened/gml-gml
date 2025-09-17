@@ -629,6 +629,8 @@ function Parser(lexer) constructor
 	/// @returns {Struct.AstExpression}
 	static parseTerminalExpression = function()
 	{
+		static exprUndefined = new AstExpressionLiteral(undefined);
+		
 		var token = self.lexer.peek();
 		
 		switch (token.type)
@@ -658,7 +660,7 @@ function Parser(lexer) constructor
 					
 					case "undefined":
 						self.lexer.next();
-						return new AstExpressionLiteral(undefined);
+						return exprUndefined;
 					
 					case "true":
 						self.lexer.next();
@@ -701,11 +703,18 @@ function Parser(lexer) constructor
 				
 				while (!self.accept(TokenType.CloseBlock))
 				{
-					// TODO: Support shorthand { member } notation.
 					var name = self.consume(TokenType.Identifier);
-					self.consume(TokenType.Colon);
+					var value;
 					
-					var value = self.parseExpression();
+					if (self.accept(TokenType.Colon))
+					{
+						value = self.parseExpression();
+					}
+					else
+					{
+						value = new AstExpressionReference(name.data);
+					}
+					
 					array_push(memberDefinitions, new AstExpressionFunctionCall(createStructEntry, [new AstExpressionLiteral(name.data), value]));
 					
 					if (!self.accept(TokenType.Comma))
