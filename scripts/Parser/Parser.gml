@@ -119,11 +119,14 @@ function Parser(lexer) constructor
 						var countExpr = self.parseExpression();
 						var block = self.parseStatement();
 					
-						var indexVar = new AstExpressionReference($"$$repeat_index_{self.nextUID()}");
+						var uid = self.nextUID();
+						var indexVar = new AstExpressionReference($"$$repeat_index_{uid}");
+						var countVar = new AstExpressionReference($"$$repeat_count_{uid}");
 					
 						return new AstBlock([
 							new AstLocalVarDeclaration(indexVar.name, new AstExpressionLiteral(0)),
-							new AstWhile(new AstExpressionBinaryOp(BinaryOp.LessThan, indexVar, countExpr), new AstBlock([
+							new AstLocalVarDeclaration(countVar.name, countExpr),
+							new AstWhile(new AstExpressionBinaryOp(BinaryOp.LessThan, indexVar, countVar), new AstBlock([
 								block,
 								new AstAssign(indexVar, new AstExpressionBinaryOp(BinaryOp.Add, indexVar, new AstExpressionLiteral(1)))
 							]))
