@@ -42,6 +42,8 @@
     {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
     {"id":{"name":"AstAssign","path":"scripts/AstAssign/AstAssign.yy",},},
     {"id":{"name":"AstBlock","path":"scripts/AstBlock/AstBlock.yy",},},
+    {"id":{"name":"AstBreak","path":"scripts/AstBreak/AstBreak.yy",},},
+    {"id":{"name":"AstContinue","path":"scripts/AstContinue/AstContinue.yy",},},
     {"id":{"name":"AstExpression","path":"scripts/AstExpression/AstExpression.yy",},},
     {"id":{"name":"AstExpressionArrayAccess","path":"scripts/AstExpressionArrayAccess/AstExpressionArrayAccess.yy",},},
     {"id":{"name":"AstExpressionBinaryOp","path":"scripts/AstExpressionBinaryOp/AstExpressionBinaryOp.yy",},},

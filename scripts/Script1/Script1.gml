@@ -5,6 +5,20 @@ var input = @'
 
 	c += 1;
 
+	switch (c + 1)
+	{
+		case 5:
+			print("this wont happen");
+		break;
+		
+		case 6:
+			print("this will happen");
+		
+		default:
+			print("this will happen due to fallthrough");
+		break;
+	}
+
 	print(c);
 ';
 
@@ -19,4 +33,4 @@ var result = interpreter.execute();
 show_message($"Program returned: {result}");
 game_end();
 
-result.blah().innerFunc();
+//result.blah().innerFunc();

@@ -22,6 +22,8 @@
   ],
   "ResourceOrderSettings":[
     {"name":"AstAssign","order":4,"path":"scripts/AstAssign/AstAssign.yy",},
+    {"name":"AstBreak","order":8,"path":"scripts/AstBreak/AstBreak.yy",},
+    {"name":"AstContinue","order":9,"path":"scripts/AstContinue/AstContinue.yy",},
     {"name":"AstExpression","order":2,"path":"scripts/AstExpression/AstExpression.yy",},
     {"name":"AstExpressionArrayAccess","order":7,"path":"scripts/AstExpressionArrayAccess/AstExpressionArrayAccess.yy",},
     {"name":"AstExpressionBinaryOp","order":1,"path":"scripts/AstExpressionBinaryOp/AstExpressionBinaryOp.yy",},

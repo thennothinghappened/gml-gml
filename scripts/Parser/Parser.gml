@@ -7,14 +7,28 @@ function Parser(lexer) constructor
 	/// @ignore
 	self.__nextUID = 0;
 	
+	enum StatementContext
+	{
+		Global,
+		Block,
+		SwitchCase
+	}
+	
 	/// @returns {Struct.AstStatement}
 	static parse = function()
+	{
+		return self.parseBlock(StatementContext.Global);
+	}
+	
+	/// @param {Enum.StatementContext} [context]
+	/// @returns {Struct.AstBlock}
+	static parseBlock = function(context)
 	{
 		var statements = [];
 		
 		while (true)
 		{
-			var statement = self.parseStatement();
+			var statement = self.parseStatement(context);
 			
 			if (is_undefined(statement))
 			{
@@ -27,8 +41,9 @@ function Parser(lexer) constructor
 		return new AstBlock(statements);
 	}
 	
+	/// @param {Enum.StatementContext} [context]
 	/// @returns {Struct.AstStatement|undefined}
-	static parseStatement = function(withinBlock = false)
+	static parseStatement = function(context = StatementContext.Global)
 	{
 		while (self.accept(TokenType.Semicolon))
 		{}
@@ -62,9 +77,7 @@ function Parser(lexer) constructor
 				return new AstBlock(statements);
 			
 			case TokenType.CloseBlock:
-				self.lexer.next();
-			
-				if (withinBlock)
+				if (context != StatementContext.Global)
 				{
 					return undefined;
 				}
@@ -82,6 +95,30 @@ function Parser(lexer) constructor
 					case "return":
 						self.lexer.next();
 						return new AstReturn(self.parseExpression());
+					
+					case "break":
+						self.lexer.next();
+						return new AstBreak();
+					
+					case "continue":
+						self.lexer.next();
+						return new AstContinue();
+					
+					case "case":
+						if (context == StatementContext.SwitchCase)
+						{
+							return undefined;
+						}
+						
+						throw $"Unexpected case outside switch:\n{self.lexer.formatOffendingArea()}";
+					
+					case "default":
+						if (context == StatementContext.SwitchCase)
+						{
+							return undefined;
+						}
+						
+						throw $"Unexpected default case outside switch:\n{self.lexer.formatOffendingArea()}";
 					
 					case "function":
 						return new AstFunctionDeclaration(self.parseFunctionDeclaration());
@@ -158,6 +195,52 @@ function Parser(lexer) constructor
 								doEachIteration
 							], true))
 						]);
+					
+					case "switch":
+						self.lexer.next();
+					
+						var testExpr = self.parseExpression();
+						var block = new AstBlock([]);
+						var previousCaseBlock = undefined;
+					
+						self.consume(TokenType.OpenBlock);
+					
+						while (!self.accept(TokenType.CloseBlock))
+						{
+							var caseBlock;
+							
+							switch (self.consume(TokenType.Identifier).data)
+							{
+								case "case":
+									var caseExpr = self.parseExpression();
+									self.consume(TokenType.Colon);
+								
+									caseBlock = self.parseBlock(StatementContext.SwitchCase);
+									caseBlock.injectIntoParentScope = true;
+									
+									array_push(block.statements, new AstIf(new AstExpressionBinaryOp(BinaryOp.Equal, testExpr, caseExpr), caseBlock, undefined));
+								break;
+								
+								case "default":
+									self.consume(TokenType.Colon);
+								
+									caseBlock = self.parseBlock(StatementContext.SwitchCase);
+									caseBlock.injectIntoParentScope = true;
+									
+									array_push(block.statements, caseBlock);
+								break;
+							}
+							
+							if (previousCaseBlock != undefined)
+							{
+								array_push(previousCaseBlock.statements, caseBlock);
+							}
+							
+							previousCaseBlock = caseBlock;
+						}
+						
+						array_push(block.statements, new AstBreak());
+						return new AstWhile(new AstExpressionLiteral(true), block);
 					
 					case "var":
 						self.lexer.next();

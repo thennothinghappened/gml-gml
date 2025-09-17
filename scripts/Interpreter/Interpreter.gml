@@ -71,7 +71,21 @@ function Interpreter(ast) constructor
 				case AstStatementType.While:
 					while (self.evaluateExpression(statement.condition))
 					{
-						var result = self.executeStatement(statement.block);
+						var result;
+						
+						try
+						{
+							result = self.executeStatement(statement.block);
+						}
+						catch (err)
+						{
+							if (is_instanceof(err, InterpreterBreakException))
+							{
+								return undefined;
+							}
+							
+							throw err;
+						}
 						
 						if (result != undefined)
 						{
@@ -91,10 +105,21 @@ function Interpreter(ast) constructor
 				
 				case AstStatementType.Return:
 					return self.evaluateExpression(statement.value);
+				
+				case AstStatementType.Break:
+					throw new InterpreterBreakException();
+				
+				default:
+					throw $"Unhandled statement type for statement {statement}";
 			}
 		}
 		catch (err)
 		{
+			if (is_instanceof(err, InterpreterBreakException))
+			{
+				throw err;
+			}
+			
 			throw $"{err}\n\tin statement: {statement}";
 		}
 	}
@@ -373,3 +398,6 @@ function Interpreter(ast) constructor
 		self.globalScope.variables[$ name] = value;
 	}
 }
+
+function InterpreterBreakException() constructor
+{}

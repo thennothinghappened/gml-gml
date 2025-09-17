@@ -8,7 +8,9 @@ enum AstStatementType
 	While,
 	Assign,
 	DeclareFunction,
-	Return
+	Return,
+	Break,
+	Continue
 }
 
 /// @param {Enum.AstStatementType} type
