@@ -4,8 +4,10 @@ function Interpreter(ast) constructor
 {
 	self.ast = ast;
 	
-	self.globalScope = {};
-	self.scope = self.globalScope;
+	self.globalScope = { parentScope: undefined, variables: {} };
+	
+	var parentScope = self.globalScope;
+	self.scope = { parentScope, variables: {} };
 	
 	/// Define a top-level member in the environment. Can be used to expose functions.
 	/// 
@@ -265,39 +267,55 @@ function Interpreter(ast) constructor
 	
 	static getVariable = function(name)
 	{
-		return self.scope[$ name];
+		var scope = self.scope;
+		
+		while (!is_undefined(scope))
+		{
+			if (struct_exists(scope.variables, name))
+			{
+				return scope.variables[$ name];
+			}
+			
+			scope = scope.parentScope;
+		}
+		
+		throw $"Variable {name} is not declared";
 	}
 	
 	static declareVariable = function(name, value)
 	{
-		self.scope[$ name] = value;
+		self.scope.variables[$ name] = value;
 	}
 	
 	static setVariable = function(name, value)
 	{
 		var scope = self.scope;
 		
-		while (is_struct(scope))
+		while (true)
 		{
-			if (struct_exists(scope, name))
+			if (struct_exists(scope.variables, name))
 			{
-				scope[$ name] = value;
-				return;
+				scope.variables[$ name] = value;
+				break;
 			}
 			
-			scope = static_get(scope);
+			if (is_undefined(scope.parentScope))
+			{
+				self.setGlobalVariable(name, value);
+				break;
+			}
+			
+			scope = scope.parentScope;
 		}
-		
-		self.setGlobalVariable(name, value);
 	}
 	
 	static getGlobalVariable = function(name)
 	{
-		return self.globalScope[$ name];
+		return self.globalScope.variables[$ name];
 	}
 	
 	static setGlobalVariable = function(name, value)
 	{
-		self.globalScope[$ name] = value;
+		self.globalScope.variables[$ name] = value;
 	}
 }
