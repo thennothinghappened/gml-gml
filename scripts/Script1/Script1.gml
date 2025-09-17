@@ -15,7 +15,7 @@ var input = @'
 
 	for (var index = 0; index < 5; index = index + 1)
 	{
-		print("for loop iter!");
+		print("for loop iter #" + string(index));
 	}
 
 	var outerStructMem = 3;
@@ -62,7 +62,7 @@ var parser = new Parser(lexer);
 var ast = parser.parse();
 
 var interpreter = new Interpreter(ast)
-	.define("print", show_message);
+	.define("print", show_debug_message);
 
 var result = interpreter.execute();
 show_message($"Program returned: {result}");

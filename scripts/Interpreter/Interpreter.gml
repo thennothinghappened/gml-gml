@@ -4,7 +4,19 @@ function Interpreter(ast) constructor
 {
 	self.ast = ast;
 	
-	self.globalScope = { parentScope: undefined, variables: {} };
+	self.globalScope = {
+		parentScope: undefined,
+		variables: {
+			string,
+			real,
+			int64,
+			is_string,
+			is_real,
+			is_numeric,
+			is_int32,
+			is_int64
+		}
+	};
 	
 	var parentScope = self.globalScope;
 	self.scope = { parentScope, variables: {} };
