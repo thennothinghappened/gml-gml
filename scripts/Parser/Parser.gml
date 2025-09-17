@@ -200,6 +200,17 @@ function Parser(lexer) constructor
 			return new AstAssign(expr, self.parseExpression());
 		}
 		
+		// Might be +=, -=, etc.
+		var op = binaryOpFromToken(self.lexer.peek());
+		
+		if (op != undefined)
+		{
+			self.lexer.next();
+			self.consume(TokenType.SingleEquals);
+			
+			return new AstAssign(expr, new AstExpressionBinaryOp(op, expr, self.parseExpression()));
+		}
+		
 		throw $"unexpected token beginning statement: {expr}, at:\n{self.lexer.formatOffendingArea()}";
 	}
 	

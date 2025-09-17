@@ -3,7 +3,9 @@ var input = @'
 	var a = 2, b = 3;
 	var c = 4;
 
-	print(b);
+	c += 1;
+
+	print(c);
 ';
 
 var lexer = new Lexer(input);
