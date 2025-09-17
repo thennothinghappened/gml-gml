@@ -157,7 +157,8 @@ enum AstExpressionType
 	Reference,
 	BinaryOp,
 	UnaryOp,
-	DotAccess
+	DotAccess,
+	ArrayAccess
 }
 
 /// @param {Enum.AstExpressionType} type
@@ -234,6 +235,19 @@ function AstExpressionDotAccess(target, memberNameExpr) : AstExpression(AstExpre
 		}
 		
 		return $"{self.target}[$ {self.memberNameExpr}]";
+	}
+}
+
+/// @param {Struct.AstExpression} target
+/// @param {Struct.AstExpression} indexExpr
+function AstExpressionArrayAccess(target, indexExpr) : AstExpression(AstExpressionType.ArrayAccess) constructor
+{
+	self.target = target;
+	self.indexExpr = indexExpr;
+	
+	static toString = function()
+	{
+		return $"{self.target}[{self.indexExpr}]";
 	}
 }
 
@@ -616,6 +630,13 @@ function Parser(lexer) constructor
 				self.consume(TokenType.CloseSquareBracket);
 				
 				expr = new AstExpressionDotAccess(expr, memberNameExpr);
+			}
+			else if (self.accept(TokenType.OpenSquareBracket))
+			{
+				var indexExpr = self.parseExpression();
+				self.consume(TokenType.CloseSquareBracket);
+			
+				expr = new AstExpressionArrayAccess(expr, indexExpr);
 			}
 			else
 			{

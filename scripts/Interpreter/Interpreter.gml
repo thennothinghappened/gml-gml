@@ -117,6 +117,10 @@ function Interpreter(ast) constructor
 				self.evaluateExpression(statement.target.target)[$ self.evaluateExpression(statement.target.memberNameExpr)] = value;
 			break;
 			
+			case AstExpressionType.ArrayAccess:
+				self.evaluateExpression(statement.target.target)[self.evaluateExpression(statement.target.indexExpr)] = value;
+			break;
+			
 			default:
 				throw $"{statement.target} is not a valid assign target ({statement})";
 		}
@@ -147,6 +151,9 @@ function Interpreter(ast) constructor
 			
 			case AstExpressionType.DotAccess:
 				return self.evaluateExpression(expression.target)[$ self.evaluateExpression(expression.memberNameExpr)];
+			
+			case AstExpressionType.ArrayAccess:
+				return self.evaluateExpression(expression.target)[self.evaluateExpression(expression.indexExpr)];
 			
 			default:
 				throw $"Unhandled expression type for expression {expression}";

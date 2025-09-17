@@ -25,7 +25,7 @@ var input = @'
 	print("testing conditional");
 
 	var array = [2, 3];
-	print(array);
+	print(array[1]);
 
 	if (true * 1)
 	{
