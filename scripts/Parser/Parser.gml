@@ -258,7 +258,7 @@ function Parser(lexer) constructor
 						self.lexer.next();
 					
 						var tryBlock = self.parseStatement();
-						var catchFunc = undefined;
+						var catchBlock = undefined;
 						var finallyBlock = undefined;
 						
 						if (self.nextIs(TokenType.Identifier) && self.lexer.peek().data == "catch")
@@ -266,10 +266,10 @@ function Parser(lexer) constructor
 							self.lexer.next();
 							
 							self.consume(TokenType.OpenParenthesis);
-							var errorVarName = new AstFunctionArgument(self.consume(TokenType.Identifier).data);
+							var errorVarName = self.consume(TokenType.Identifier).data;
 							self.consume(TokenType.CloseParenthesis);
 							
-							catchFunc = new AstExpressionFunction(undefined, [errorVarName], self.parseStatement());
+							catchBlock = new AstTry_CatchBlock(errorVarName, self.parseStatement());
 						}
 					
 						if (self.nextIs(TokenType.Identifier) && self.lexer.peek().data == "finally")
@@ -278,7 +278,7 @@ function Parser(lexer) constructor
 							finallyBlock = self.parseStatement();
 						}
 					
-						return new AstTry(tryBlock, catchFunc, finallyBlock);
+						return new AstTry(tryBlock, catchBlock, finallyBlock);
 					
 					case "var":
 						self.lexer.next();

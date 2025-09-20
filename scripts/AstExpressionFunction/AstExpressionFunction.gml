@@ -1,5 +1,5 @@
 
-/// @param {String|undefined} name
+/// @param {String} name
 /// @param {Array<Struct.AstFunctionArgument>} args
 /// @param {Struct.AstStatement} body
 function AstExpressionFunction(name, args, body) : AstExpression(AstExpressionType.Function) constructor
@@ -10,14 +10,7 @@ function AstExpressionFunction(name, args, body) : AstExpression(AstExpressionTy
 	
 	static toString = function()
 	{
-		var argsString = string_join_ext(", ", self.args);
-		
-		if (self.name == undefined)
-		{
-			return $"function({argsString}) {self.body}";
-		}
-		
-		return $"function {self.name}({argsString}) {self.body}";
+		return $"function {self.name}({string_join_ext(", ", self.args)}) {self.body}";
 	}
 }
 

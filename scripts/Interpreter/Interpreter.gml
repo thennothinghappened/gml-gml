@@ -4,9 +4,8 @@ function Interpreter(ast) constructor
 {
 	self.ast = ast;
 	
-	self.globalScope = {
-		parentScope: undefined,
-		variables: {
+	self.globalScope = new InterpreterScope(undefined, undefined,
+		{
 			string,
 			real,
 			int64,
@@ -16,10 +15,9 @@ function Interpreter(ast) constructor
 			is_int32,
 			is_int64
 		}
-	};
+	);
 	
-	var parentScope = self.globalScope;
-	self.scope = { parentScope, variables: {} };
+	self.scope = self.globalScope;
 	
 	/// Define a top-level member in the environment. Can be used to expose functions.
 	/// 
@@ -140,44 +138,34 @@ function Interpreter(ast) constructor
 					}
 					catch (caughtError)
 					{
-						// Re-throw if this is an interpreter error.
-						if (!is_instanceof(caughtError, RuntimeException))
-						{
-							throw caughtError;
-						}
+						postponedError = caughtError;
+					}
+				
+					// Handle errors that were created within the confines of the runtime (e.g. throw <expr>).
+					if ((statement.catchBlock != undefined) && is_instanceof(postponedError, RuntimeThrownException))
+					{
+						self.pushScope(self.scope);
 						
-						// Handle errors that were created within the confines of the runtime (e.g. throw <expr>).
-						if (is_instanceof(caughtError, RuntimeThrownException) && (statement.catchFunc != undefined))
+						self.declareVariable(statement.catchBlock.errorVarName, postponedError.value);
+						postponedError = undefined;
+						
+						try
 						{
-							try
-							{
-								result = self.executeBlock(new AstBlock([
-									new AstLocalVarDeclaration(statement.catchFunc.args[0].name, new AstExpressionLiteral(caughtError.value)),
-									statement.catchFunc.body
-								]));
-								
-								postponedError = undefined;
-							}
-							catch (errorInCatch)
-							{
-								if (!is_instanceof(errorInCatch, RuntimeThrownException))
-								{
-									throw errorInCatch;
-								}
-								
-								postponedError = errorInCatch;
-							}
+							result = self.executeStatement(statement.catchBlock.body);
 						}
-						else
+						catch (errorInCatch)
 						{
-							postponedError = caughtError;
+							postponedError = errorInCatch;
+						}
+						finally
+						{
+							self.popScope();
 						}
 					}
 				
 					if (statement.finallyBlock != undefined)
 					{
-						var finallyResult = self.executeStatement(statement.finallyBlock);
-						result ??= finallyResult;
+						result = self.executeStatement(statement.finallyBlock) ?? result;
 					}
 				
 					if (postponedError != undefined)
@@ -191,14 +179,14 @@ function Interpreter(ast) constructor
 					throw $"Unhandled statement type for statement {statement}";
 			}
 		}
-		catch (err)
+		catch (_err)
 		{
-			if (is_instanceof(err, RuntimeException))
+			if (is_instanceof(_err, RuntimeException))
 			{
-				throw err;
+				throw _err;
 			}
 			
-			throw $"{err}\n\tin statement: {statement}";
+			throw $"{_err}\n\tin statement: {statement}";
 		}
 	}
 	
@@ -388,18 +376,14 @@ function Interpreter(ast) constructor
 			
 			with (_self)
 			{
-				var previousScope = self.scope;
-				var parentScope = self.globalScope;
+				var argumentArray = array_create(argument_count, undefined);
+				var argumentCount = max(argument_count, namedArgumentCount);
+			
+				self.pushScope(self.globalScope);
+				self.declareVariable("argument", argumentArray);
+				self.declareVariable("argument_count", argumentCount);
 				
-				self.scope = {
-					parentScope,
-					variables: {
-						argument: array_create(argument_count, undefined),
-						argument_count
-					}
-				};
-				
-				for (var i = 0; i < max(argument_count, namedArgumentCount); i ++)
+				for (var i = 0; i < argumentCount; i ++)
 				{
 					var value = argument[i];
 					
@@ -408,15 +392,15 @@ function Interpreter(ast) constructor
 						var arg = expr.args[i];
 					
 						value ??= self.evaluateExpression(arg.defaultValue);
-						self.scope.variables[$ arg.name] = value;
+						self.declareVariable(arg.name, value);
 					}
 					
-					self.scope.variables[$ $"argument{i}"] = value;
-					self.scope.variables.argument[i] = value;
+					self.declareVariable($"argument{i}", value);
+					argumentArray[i] = value;
 				}
 				
 				var result = self.executeStatement(expr.body);
-				self.scope = previousScope;
+				self.popScope();
 				
 				return result;
 			}
@@ -430,6 +414,8 @@ function Interpreter(ast) constructor
 		return func;
 	}
 	
+	/// @param {String} name
+	/// @returns {Any}
 	static getVariable = function(name)
 	{
 		var scope = self.scope;
@@ -447,11 +433,15 @@ function Interpreter(ast) constructor
 		throw $"Variable {name} is not declared";
 	}
 	
+	/// @param {String} name
+	/// @param {Any} value
 	static declareVariable = function(name, value)
 	{
 		self.scope.variables[$ name] = value;
 	}
 	
+	/// @param {String} name
+	/// @param {Any} value
 	static setVariable = function(name, value)
 	{
 		var scope = self.scope;
@@ -474,14 +464,29 @@ function Interpreter(ast) constructor
 		}
 	}
 	
+	/// @param {String} name
+	/// @returns {Any}
 	static getGlobalVariable = function(name)
 	{
 		return self.globalScope.variables[$ name];
 	}
 	
+	/// @param {String} name
+	/// @param {Any} value
 	static setGlobalVariable = function(name, value)
 	{
 		self.globalScope.variables[$ name] = value;
+	}
+	
+	/// @param {Struct.InterpreterScope} parentScope
+	static pushScope = function(parentScope)
+	{
+		self.scope = new InterpreterScope(self.scope, parentScope, {});
+	}
+	
+	static popScope = function()
+	{
+		self.scope = self.scope.previousScope;
 	}
 }
 
@@ -498,4 +503,14 @@ function RuntimeThrownException(value) : RuntimeException() constructor
 function RuntimeBreakException(shouldContinue) : RuntimeException() constructor
 {
 	self.shouldContinue = shouldContinue;
+}
+
+/// @param {Struct.InterpreterScope} previousScope
+/// @param {Struct.InterpreterScope} parentScope
+/// @param {Struct} variables
+function InterpreterScope(previousScope, parentScope, variables = {}) constructor
+{
+	self.previousScope = previousScope;
+	self.parentScope = parentScope;
+	self.variables = variables;
 }

@@ -1,5 +1,27 @@
 
 var input = @'
+	var a = 2;
+
+	{
+		var a = 3;
+	}
+
+	try
+	{
+		throw "oh no!";
+	}
+	catch (err)
+	{
+		show_message("0 caught error " + string(err));
+		show_message("1 caught error " + string(err));
+	}
+	finally
+	{
+		show_message("finally");
+	}
+	
+	show_message(a);
+
 	var a = 2, b = 3;
 	var c = 4;
 
@@ -20,6 +42,11 @@ var input = @'
 			print("this will happen due to fallthrough");
 		break;
 	}
+
+	var struct = { i: 3 };
+	struct.i += 1;
+
+	print(struct[$ "i"]);
 
 	for (var i = 0; i < 10; i += 1)
 	{
@@ -62,7 +89,8 @@ var parser = new Parser(lexer);
 var ast = parser.parse();
 
 var interpreter = new Interpreter(ast)
-	.define("print", show_debug_message);
+	.define("print", show_debug_message)
+	.define("show_message", show_message);
 
 var result = interpreter.execute();
 show_message($"Program returned: {result}");

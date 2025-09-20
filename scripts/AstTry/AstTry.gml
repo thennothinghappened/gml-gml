@@ -1,20 +1,20 @@
 
 /// @param {Struct.AstStatement} tryBlock
-/// @param {Struct.AstExpressionFunction} catchFunc
+/// @param {Struct.AstTry_CatchBlock} catchFunc
 /// @param {Struct.AstStatement|undefined} finallyBlock
-function AstTry(tryBlock, catchFunc, finallyBlock) : AstStatement(AstStatementType.Try) constructor
+function AstTry(tryBlock, catchBlock, finallyBlock) : AstStatement(AstStatementType.Try) constructor
 {
 	self.tryBlock = tryBlock;
-	self.catchFunc = catchFunc;
+	self.catchBlock = catchBlock;
 	self.finallyBlock = finallyBlock;
 	
 	static toString = function()
 	{
 		var outString = $"try {self.tryBlock}";
 		
-		if (self.catchFunc != undefined)
+		if (self.catchBlock != undefined)
 		{
-			outString += $" catch ({self.catchFunc.args[0].name}) {self.catchFunc.body}";
+			outString += $" {self.catchBlock}";
 		}
 		
 		if (self.finallyBlock != undefined)
@@ -23,5 +23,18 @@ function AstTry(tryBlock, catchFunc, finallyBlock) : AstStatement(AstStatementTy
 		}
 		
 		return outString;
+	}
+}
+
+/// @param {String} errorVarName
+/// @param {Struct.AstStatement} body
+function AstTry_CatchBlock(errorVarName, body) constructor
+{
+	self.errorVarName = errorVarName;
+	self.body = body;
+	
+	static toString = function()
+	{
+		return $"catch ({self.errorVarName}) {self.body}";
 	}
 }
