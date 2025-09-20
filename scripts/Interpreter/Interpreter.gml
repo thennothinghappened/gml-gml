@@ -388,7 +388,8 @@ function Interpreter(ast) constructor
 			
 			with (_self)
 			{
-				var parentScope = self.scope;
+				var previousScope = self.scope;
+				var parentScope = self.globalScope;
 				
 				self.scope = {
 					parentScope,
@@ -415,7 +416,7 @@ function Interpreter(ast) constructor
 				}
 				
 				var result = self.executeStatement(expr.body);
-				self.scope = parentScope;
+				self.scope = previousScope;
 				
 				return result;
 			}
