@@ -206,7 +206,12 @@ function Parser(lexer) constructor
 						self.lexer.next();
 					
 						var testExpr = self.parseExpression();
-						var block = new AstBlock([]);
+						var testExprVariable = new AstExpressionReference($"$$switch_expr_{self.nextUID()}");
+					
+						var block = new AstBlock([
+							new AstLocalVarDeclaration(testExprVariable.name, testExpr)
+						]);
+					
 						var previousCaseBlock = undefined;
 					
 						self.consume(TokenType.OpenBlock);
@@ -224,7 +229,7 @@ function Parser(lexer) constructor
 									caseBlock = self.parseBlock(StatementContext.SwitchCase);
 									caseBlock.injectIntoParentScope = true;
 									
-									array_push(block.statements, new AstIf(new AstExpressionBinaryOp(BinaryOp.Equal, testExpr, caseExpr), caseBlock, undefined));
+									array_push(block.statements, new AstIf(new AstExpressionBinaryOp(BinaryOp.Equal, testExprVariable, caseExpr), caseBlock, undefined));
 								break;
 								
 								case "default":
