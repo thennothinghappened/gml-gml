@@ -242,6 +242,11 @@ function Parser(lexer) constructor
 								array_push(previousCaseBlock.statements, caseBlock);
 							}
 							
+							if (is_instanceof(array_last(caseBlock.statements), AstBreak))
+							{
+								caseBlock = undefined;
+							}
+							
 							previousCaseBlock = caseBlock;
 						}
 						
