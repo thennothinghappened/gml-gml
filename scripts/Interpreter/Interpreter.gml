@@ -375,11 +375,14 @@ function Interpreter(ast) constructor
 	/// @param {Struct.AstExpressionFunction} expr
 	static evaluateFunctionDefinition = function(expr)
 	{
+		var namedArgumentCount = array_length(expr.args);
+		
 		var _self = self;
-		var closure = { _self, expr };
+		var closure = { _self, expr, namedArgumentCount };
 		
 		var func = method(closure, function()
 		{
+			var namedArgumentCount = self.namedArgumentCount;
 			var expr = self.expr;
 			var _self = self._self;
 			
@@ -390,16 +393,16 @@ function Interpreter(ast) constructor
 				self.scope = {
 					parentScope,
 					variables: {
-						argument: [],
+						argument: array_create(argument_count, undefined),
 						argument_count
 					}
 				};
 				
-				for (var i = 0; i < argument_count; i ++)
+				for (var i = 0; i < max(argument_count, namedArgumentCount); i ++)
 				{
 					var value = argument[i];
 					
-					if (array_length(expr.args) > i)
+					if (i < namedArgumentCount)
 					{
 						var arg = expr.args[i];
 					
