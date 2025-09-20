@@ -171,7 +171,7 @@ function Parser(lexer) constructor
 							new AstWhile(new AstExpressionBinaryOp(BinaryOp.LessThan, indexVar, countVar), new AstBlock([
 								block,
 								new AstAssign(indexVar, new AstExpressionBinaryOp(BinaryOp.Add, indexVar, new AstExpressionLiteral(1)))
-							], true))
+							]))
 						]);
 					
 					case "for":
@@ -227,8 +227,6 @@ function Parser(lexer) constructor
 									self.consume(TokenType.Colon);
 								
 									caseBlock = self.parseBlock(StatementContext.SwitchCase);
-									caseBlock.injectIntoParentScope = true;
-									
 									array_push(block.statements, new AstIf(new AstExpressionBinaryOp(BinaryOp.Equal, testExprVariable, caseExpr), caseBlock, undefined));
 								break;
 								
@@ -236,8 +234,6 @@ function Parser(lexer) constructor
 									self.consume(TokenType.Colon);
 								
 									caseBlock = self.parseBlock(StatementContext.SwitchCase);
-									caseBlock.injectIntoParentScope = true;
-									
 									array_push(block.statements, caseBlock);
 								break;
 							}
@@ -287,7 +283,7 @@ function Parser(lexer) constructor
 					case "var":
 						self.lexer.next();
 					
-						var block = new AstBlock([], true);
+						var block = new AstBlock([]);
 					
 						while (true)
 						{
@@ -305,6 +301,11 @@ function Parser(lexer) constructor
 							{
 								break;
 							}
+						}
+					
+						if (array_length(block.statements) == 1)
+						{
+							return block.statements[0];
 						}
 					
 						return block;

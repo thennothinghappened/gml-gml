@@ -205,17 +205,6 @@ function Interpreter(ast) constructor
 	/// @param {Struct.AstBlock} block
 	static executeBlock = function(block)
 	{
-		if (!block.injectIntoParentScope)
-		{
-			// Begin a new scope.
-			var parentScope = self.scope;
-			
-			self.scope = {
-				parentScope,
-				variables: {}
-			};
-		}
-		
 		// Execute each statement.
 		var result = undefined;
 		
@@ -228,12 +217,6 @@ function Interpreter(ast) constructor
 				// Statement returned a value - it was `return`!
 				break;
 			}
-		}
-		
-		if (!block.injectIntoParentScope)
-		{
-			// Restore the parent scope.
-			self.scope = self.scope.parentScope;
 		}
 		
 		// If non-undefined, return was hit - we're done.
