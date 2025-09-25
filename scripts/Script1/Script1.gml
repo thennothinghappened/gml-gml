@@ -5,8 +5,11 @@ var input = @'
 	};
 
 	with (struct) {
+		something = 2;
 		show_message("within struct: " + string(hello) + ", global is " + string(global == other));
 	}
+
+	show_message(struct);
 
 	show_message("in global scope: " + string(self[$ "hello"]));
 

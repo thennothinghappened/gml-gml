@@ -50,7 +50,7 @@ function Interpreter(ast) constructor
 	/// @param {Any} value
 	static define = function(name, value)
 	{
-		self.setVariable(name, value);
+		self.declareVariable(name, value);
 		return self;
 	}
 	
@@ -538,7 +538,9 @@ function Interpreter(ast) constructor
 			
 			if (is_undefined(scope.parentScope))
 			{
-				self.setGlobalVariable(name, value);
+				var selfScope = self.getVariable("self");
+				selfScope[$ name] = value;
+				
 				break;
 			}
 			
