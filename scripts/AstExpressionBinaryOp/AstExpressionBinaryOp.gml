@@ -21,6 +21,7 @@ enum BinaryOp
 	Multiply,
 	Divide,
 	Equal,
+	NotEqual,
 	GreaterThan,
 	LessThan,
 	GreaterOrEqual,
@@ -36,6 +37,7 @@ function binaryOpNameOf(op)
 		"Multiply",
 		"Divide",
 		"Equal",
+		"NotEqual",
 		"GreaterThan",
 		"LessThan",
 		"GreaterOrEqual",
@@ -54,6 +56,7 @@ function binaryOpSymbolOf(op)
 		"*",
 		"/",
 		"==",
+		"!=",
 		">",
 		"<",
 		">=",
@@ -71,6 +74,7 @@ function binaryOpBindingPowerOf(op)
 		1,
 		2,
 		2,
+		0,
 		0,
 		0,
 		0,
@@ -96,6 +100,7 @@ function binaryOpFromToken(token)
 		case TokenType.Divide: return BinaryOp.Divide;
 		case TokenType.SingleEquals: return BinaryOp.Equal;
 		case TokenType.DoubleEquals: return BinaryOp.Equal;
+		case TokenType.NotEqual: return BinaryOp.NotEqual;
 		case TokenType.GreaterThan: return BinaryOp.GreaterThan;
 		case TokenType.LessThan: return BinaryOp.LessThan;
 		case TokenType.GreaterOrEqual: return BinaryOp.GreaterOrEqual;

@@ -314,6 +314,9 @@ function Interpreter(ast) constructor
 			case BinaryOp.Equal:
 				return lhs == self.evaluateExpression(expr.rhs);
 			
+			case BinaryOp.NotEqual:
+				return lhs != self.evaluateExpression(expr.rhs);
+			
 			case BinaryOp.GreaterThan:
 				return lhs > self.evaluateExpression(expr.rhs);
 			
@@ -327,7 +330,7 @@ function Interpreter(ast) constructor
 				return lhs <= self.evaluateExpression(expr.rhs);
 			
 			default:
-				throw $"Unhandled binary operator {expr.op} for expression {expr}";
+				throw $"Unhandled binary operator {binaryOpNameOf(expr.op)} for expression {expr}";
 		}
 	}
 	
@@ -343,7 +346,7 @@ function Interpreter(ast) constructor
 				return !self.evaluateExpression(expr.expr);
 			
 			default:
-				throw $"Unhandled unary operator {expr.op} for expression {expr}";
+				throw $"Unhandled unary operator {unaryOpNameOf(expr.op)} for expression {expr}";
 		}
 	}
 	
