@@ -21,7 +21,7 @@ var input = @'
 		show_message("blah :: self = " + string(self) + ", other = " + string(other));
 	}
 
-	blah();
+	method({ testStruct: "this is a test struct" }, blah)();
 	struct.structFunction();
 ';
 

@@ -14,6 +14,27 @@ function Interpreter(ast) constructor
 			is_numeric,
 			is_int32,
 			is_int64,
+			
+			method: function(selfScope, target)
+			{
+				if (!is_callable(target))
+				{
+					throw $"method() :: expecting a callable function, got a {typeof(target)} ({target})";
+				}
+				
+				var targetSelfStruct = method_get_self(target);
+				
+				if (!struct_exists(targetSelfStruct, "thisInterpreter"))
+				{
+					return method(selfScope, target);
+				}
+				
+				var methodStruct = variable_clone(targetSelfStruct);
+				methodStruct.selfScope = selfScope;
+				
+				return method(methodStruct, target);
+			},
+			
 			global: {}
 		}
 	);
