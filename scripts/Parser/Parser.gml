@@ -1,4 +1,6 @@
 
+new AstExpressionReference("");
+
 /// @param {Struct.Lexer} lexer
 function Parser(lexer) constructor
 {
@@ -127,6 +129,14 @@ function Parser(lexer) constructor
 					
 					case "function":
 						return new AstFunctionDeclaration(self.parseFunctionDeclaration());
+					
+					case "with":
+						self.lexer.next();
+					
+						var selfScopeExpr = self.parseExpression();
+						var block = self.parseStatement(context);
+					
+						return new AstWith(selfScopeExpr, block);
 					
 					case "if":
 						self.lexer.next();
@@ -495,29 +505,16 @@ function Parser(lexer) constructor
 			case TokenType.OpenBlock:
 				// Struct literal!
 				//
-				// Rather than adding *more* AST concepts for this, we're gonna "cheat" by defining the struct literal
-				// using an IIFE.
+				// There's a LOT of cheating going on here, we're basically using a closure (not a thing in GML normally!)
+				// so that we can effectively use with() as an expression.
 				self.lexer.next();
 			
-				static createStruct = new AstExpressionLiteral(function()
+				static createStructLiteral = new AstExpressionLiteral(function()
 				{
-					var struct = {};
-					
-					for (var i = 0; i < argument_count; i ++)
-					{
-						var entry = argument[i];
-						struct[$ entry.name] = entry.value;
-					}
-					
-					return struct;
+					return {};
 				});
 			
-				static createStructEntry = new AstExpressionLiteral(function(name, value)
-				{
-					return { name, value };
-				});
-			
-				var memberDefinitions = [];
+				var block = new AstBlock([]);
 				
 				while (!self.accept(TokenType.CloseBlock))
 				{
@@ -533,7 +530,10 @@ function Parser(lexer) constructor
 						value = new AstExpressionReference(name.data);
 					}
 					
-					array_push(memberDefinitions, new AstExpressionFunctionCall(createStructEntry, [new AstExpressionLiteral(name.data), value]));
+					array_push(block.statements, new AstAssign(
+						new AstExpressionDotAccess(AstExpressionReference.SELF, new AstExpressionLiteral(name.data)),
+						value
+					));
 					
 					if (!self.accept(TokenType.Comma))
 					{
@@ -541,13 +541,27 @@ function Parser(lexer) constructor
 						break;
 					}
 				}
+				
+				// Inline with(struct)!
+				return new AstExpressionFunctionCall(new AstExpressionFunction($"$$createStruct_{self.nextUID()}$$",
+					[],
+					// with ({})
+					// {
+					new AstWith(new AstExpressionFunctionCall(createStructLiteral, []), new AstBlock([
+						// Assign each prop.
+						block,
 			
-				return new AstExpressionFunctionCall(createStruct, memberDefinitions);
+						// return self;
+						new AstReturn(AstExpressionReference.SELF)
+					// }
+					])),
+					AstExpressionFunctionClosure.Closure
+				), []);
 			
 			case TokenType.OpenSquareBracket:
 				// Array literal!
 				//
-				// We'll use the same approach as for struct literals (IIFE) :)
+				// We'll use the same approach as struct literals, minus the closure :)
 				self.lexer.next();
 			
 				/// @param {Any} ...

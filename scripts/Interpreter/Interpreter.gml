@@ -13,11 +13,15 @@ function Interpreter(ast) constructor
 			is_real,
 			is_numeric,
 			is_int32,
-			is_int64
+			is_int64,
+			global: {}
 		}
 	);
 	
 	self.scope = self.globalScope;
+	
+	self.declareVariable("self", self.getVariable("global"));
+	self.declareVariable("other", self.getVariable("global"));
 	
 	/// Define a top-level member in the environment. Can be used to expose functions.
 	/// 
@@ -49,6 +53,9 @@ function Interpreter(ast) constructor
 				case AstStatementType.FunctionCall:
 					self.evaluateFunctionCall(statement.call);
 					return undefined;
+				
+				case AstStatementType.With:
+					return self.executeWithStatement(statement);
 				
 				case AstStatementType.LocalVarDeclaration:
 					self.declareVariable(statement.name, self.evaluateExpression(statement.value));
@@ -211,6 +218,27 @@ function Interpreter(ast) constructor
 		return result;
 	}
 	
+	/// @param {Struct.AstWith} withStatement
+	static executeWithStatement = function(withStatement)
+	{
+		var otherScope = self.getVariable("self");
+		var selfScope = self.evaluateExpression(withStatement.selfScopeExpr);
+		
+		self.pushScope(self.scope);
+		
+		self.declareVariable("self", selfScope);
+		self.declareVariable("other", otherScope);
+		
+		try
+		{
+			return self.executeStatement(withStatement.block);
+		}
+		finally
+		{
+			self.popScope();
+		}
+	}
+	
 	/// @param {Struct.AstAssign} statement
 	static executeAssign = function(statement)
 	{
@@ -366,23 +394,46 @@ function Interpreter(ast) constructor
 	/// @param {Struct.AstExpressionFunction} expr
 	static evaluateFunctionDefinition = function(expr)
 	{
-		var namedArgumentCount = array_length(expr.args);
+		var functionArgs = expr.args;
+		var functionBody = expr.body;
+		var functionParentScope = self.globalScope;
 		
-		var _self = self;
-		var closure = { _self, expr, namedArgumentCount };
+		if (expr.closureType == AstExpressionFunctionClosure.Closure)
+		{
+			functionParentScope = self.scope;
+		}
+		
+		var thisInterpreter = self;
+		var selfScope = self.getVariable("self");
+		
+		var closure = {
+			thisInterpreter,
+			functionArgs,
+			functionBody,
+			functionParentScope,
+			selfScope
+		};
 		
 		var func = method(closure, function()
 		{
-			var namedArgumentCount = self.namedArgumentCount;
-			var expr = self.expr;
-			var _self = self._self;
+			var thisInterpreter = self.thisInterpreter;
+			var functionArgs = self.functionArgs;
+			var functionBody = self.functionBody;
+			var functionParentScope = self.functionParentScope;
+			var selfScope = self.selfScope;
 			
-			with (_self)
+			var namedArgumentCount = array_length(functionArgs);
+			
+			with (thisInterpreter)
 			{
 				var argumentArray = array_create(argument_count, undefined);
 				var argumentCount = max(argument_count, namedArgumentCount);
 			
-				self.pushScope(self.globalScope);
+				var otherScope = self.getVariable("self");
+				
+				self.pushScope(functionParentScope);
+				self.declareVariable("self", selfScope);
+				self.declareVariable("other", otherScope);
 				self.declareVariable("argument", argumentArray);
 				self.declareVariable("argument_count", argumentCount);
 				
@@ -392,7 +443,7 @@ function Interpreter(ast) constructor
 					
 					if (i < namedArgumentCount)
 					{
-						var arg = expr.args[i];
+						var arg = functionArgs[i];
 					
 						value ??= self.evaluateExpression(arg.defaultValue);
 						self.declareVariable(arg.name, value);
@@ -402,7 +453,7 @@ function Interpreter(ast) constructor
 					argumentArray[i] = value;
 				}
 				
-				var result = self.executeStatement(expr.body);
+				var result = self.executeStatement(functionBody);
 				self.popScope();
 				
 				return result;
@@ -431,6 +482,13 @@ function Interpreter(ast) constructor
 			}
 			
 			scope = scope.parentScope;
+		}
+		
+		var selfScope = self.getVariable("self");
+		
+		if (struct_exists(selfScope, name))
+		{
+			return selfScope[$ name];
 		}
 		
 		throw $"Variable {name} is not declared";

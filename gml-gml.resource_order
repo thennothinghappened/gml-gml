@@ -42,6 +42,7 @@
     {"name":"AstThrow","order":11,"path":"scripts/AstThrow/AstThrow.yy",},
     {"name":"AstTry","order":10,"path":"scripts/AstTry/AstTry.yy",},
     {"name":"AstWhile","order":7,"path":"scripts/AstWhile/AstWhile.yy",},
+    {"name":"AstWith","order":12,"path":"scripts/AstWith/AstWith.yy",},
     {"name":"breakable","order":2,"path":"scripts/breakable/breakable.yy",},
     {"name":"Interpreter","order":3,"path":"scripts/Interpreter/Interpreter.yy",},
     {"name":"Lexer","order":1,"path":"scripts/Lexer/Lexer.yy",},

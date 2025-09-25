@@ -1,87 +1,28 @@
 
 var input = @'
+	var struct = {
+		hello: "heyo!"
+	};
+
+	with (struct) {
+		show_message("within struct: " + string(hello) + ", global is " + string(global == other));
+	}
+
+	show_message("in global scope: " + string(self[$ "hello"]));
+
 	var a = 2;
-
-	{
-		var a = 3;
-	}
-
-	try
-	{
-		throw "oh no!";
-	}
-	catch (err)
-	{
-		show_message("0 caught error " + string(err));
-		show_message("1 caught error " + string(err));
-	}
-	finally
-	{
-		show_message("finally");
-	}
-	
-	show_message(a);
-
-	var a = 2, b = 3;
-	var c = 4;
-
-	c += 1;
-
-	print(c != 5 ? "its not 5" : "yeah its 5");
-
-	switch (c + 1)
-	{
-		case 5:
-			print("this wont happen");
-		break;
-		
-		case 6:
-			print("this will happen");
-		
-		default:
-			print("this will happen due to fallthrough");
-		break;
-	}
-
-	var struct = { i: 3 };
-	struct.i += 1;
-
-	print(struct[$ "i"]);
-
-	for (var i = 0; i < 10; i += 1)
-	{
-		try {
-			if (int64(i / 3) == 0)
-			{
-				print("continuing for " + string(i));
-				continue;
-			}
-			
-			//throw "oh no";
-			
-			print("didnt continue for " + string(i));
-			break;
-		} catch (err) {
-			print("caught err " + string(err));
-		} finally {
-			print("after!");
+	var struct = {
+		structFunction: function() {
+			show_message("struct.structFunction :: self = " + string(self) + ", other = " + string(other));
 		}
+	};
+
+	function blah() {
+		show_message("blah :: self = " + string(self) + ", other = " + string(other));
 	}
 
-	print(c);
-
-	function blah(a)
-	{
-		for (var i = 0; i < argument_count; i += 1)
-		{
-			print("argument " + string(i) + " = " + string(argument[i]));
-		}
-	}
-	
-	print("escape chars test!! newline: (\\n) = \n, tab: (\\t) = \t");
-
-
-	blah(1, 2, 3);
+	blah();
+	struct.structFunction();
 ';
 
 var lexer = new Lexer(input);
